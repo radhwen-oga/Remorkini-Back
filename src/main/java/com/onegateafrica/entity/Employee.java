@@ -1,4 +1,4 @@
-package com.opengateafrica.entities;
+package com.onegateafrica.entity;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
