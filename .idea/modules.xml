@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/Remorkini-Back.iml" filepath="$PROJECT_DIR$/.idea/Remorkini-Back.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Remorkini_OGA.iml" filepath="$PROJECT_DIR$/Remorkini_OGA.iml" />
     </modules>
   </component>
 </project>
