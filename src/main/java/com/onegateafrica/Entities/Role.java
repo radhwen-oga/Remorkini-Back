@@ -1,31 +1,22 @@
 package com.onegateafrica.Entities;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.*;
+
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Entity
 public class Role {
 
-	@Id
-	@GeneratedValue
-	private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long roleId;
 
-	@Enumerated(EnumType.STRING)
-	@Column(length = 20)
-	private ERole name;
-
-
-
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private ERole roleName;
 }

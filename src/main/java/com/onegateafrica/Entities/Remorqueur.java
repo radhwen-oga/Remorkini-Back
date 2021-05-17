@@ -1,11 +1,11 @@
 package com.onegateafrica.Entities;
 
-import javax.persistence.DiscriminatorColumn;
-import javax.persistence.DiscriminatorType;
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
+import java.util.List;
+
+import javax.persistence.*;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,20 +14,58 @@ import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode
+@NoArgsConstructor
 @Entity
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "Fonctionnalite")
-public class Remorqueur extends Utilisateur {
+@Table(name = "remorqeur")
+public  class Remorqueur  {
+  @Id
+  @GeneratedValue
+  private Long id;
 
-
+  @Column(name ="cinnumber")
   private String cinNumber;
+
+  @Column(name ="datedebut")
   private String dateDebut;
+
+  @Column(name ="cinphoto")
   private String cinPhoto;
 
-  public Remorqueur() {
-  }
+  @Column(name ="raisonsociale")
+  private String raisonSociale;
 
-   /*@OneToMany(mappedBy = "remorqueur")
-  Set<Course> listeDesCourses;*/
+  @Column(name ="activite")
+  private String activite;
+
+  @Column(name ="matriculeremorquage")
+  private String matriculeRemorquage;
+
+  @Column(name ="patentephoto")
+  private String patentePhoto;
+
+  @Column(name ="assurance")
+  private String assurance;
+
+  @Column(name ="nombreDeVote")
+  private double nombreDeVote;
+
+  @Column(name ="noteRemorqueurMoyenne")
+  private double noteRemorqueurMoyenne;
+
+  @OneToOne
+  private Consommateur consommateur;
+
+  @Column(name = "remorqeurType")
+  @Enumerated(EnumType.STRING)
+  private RemorqeurType remorqeurType;
+
+  //ajout Radhwen ticket 1612
+  @Column(name="isdisponible")
+  private boolean isDisponible ;
+  //////////////////////////
+  @JsonBackReference
+  @JsonIgnore
+  @OneToMany(fetch = FetchType.LAZY, mappedBy = "remorqueur",cascade = CascadeType.ALL)
+  private List<DemandeRemorquage> listeDemandesRemorquage ;
 }

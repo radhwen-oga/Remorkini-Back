@@ -5,59 +5,75 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.onegateafrica.Entities.Consommateur;
+import com.onegateafrica.Entities.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.onegateafrica.Entities.Utilisateur;
 
+import lombok.Data;
+
+@Data
 public class UserDetailsImpl implements UserDetails {
 	private static final long serialVersionUID = 1L;
-
+	private Long idRemorqueur;
 	private Long id;
-
-	private String username;
-
 	private String email;
+	private String firstName;
+	private String phoneNumber;
+	private String lastName;
+	private String userName ;
+	private boolean isActivated ;
+
 
 	@JsonIgnore
 	private String password;
 
+
 	private Collection<? extends GrantedAuthority> authorities;
 
-	public UserDetailsImpl(Long id, String email, String password,
-			Collection<? extends GrantedAuthority> authorities) {
+	public UserDetailsImpl(Long idRemorqueur,Long id, String userName, String email, String password,String phoneNumber,String firstName, String lastName,
+						   Collection<? extends GrantedAuthority> authorities) {
 		this.id = id;
+		this.userName = userName;
 		this.email = email;
 		this.password = password;
 		this.authorities = authorities;
+		this.phoneNumber=phoneNumber;
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.idRemorqueur=idRemorqueur;
+	}
+
+	public static UserDetailsImpl build(Consommateur consommateur) {
+		List<GrantedAuthority> authorities = consommateur.getRoles().stream()
+				.map(role -> new SimpleGrantedAuthority(role.getRoleName().name()))
+				.collect(Collectors.toList());
+		return new UserDetailsImpl(
+				consommateur.getRemorqueur().getId(),
+				consommateur.getId(),
+				consommateur.getUserName(),
+				consommateur.getEmail(),
+				consommateur.getPassword(),
+				consommateur.getPhoneNumber(),
+				consommateur.getFirstName(),
+				consommateur.getLastName(),
+				authorities);
 	}
 
 
 
-	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		return authorities;
 	}
 
-	public Long getId() {
-		return id;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	@Override
-	public String getPassword() {
-		return password;
-	}
 
 	@Override
 	public String getUsername() {
-		return username;
+		return  this.userName;
 	}
 
 	@Override
@@ -77,14 +93,14 @@ public class UserDetailsImpl implements UserDetails {
 
 	@Override
 	public boolean isEnabled() {
-		return true;
+		return true ;
 	}
 
 	@Override
 	public boolean equals(Object o) {
 		if (this == o)
 			return true;
-		if (o == null || getClass() != o.getClass())
+		else if (o == null || getClass() != o.getClass())
 			return false;
 		UserDetailsImpl user = (UserDetailsImpl) o;
 		return Objects.equals(id, user.id);

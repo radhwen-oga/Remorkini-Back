@@ -7,6 +7,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.onegateafrica.Security.jwt.JwtUtils;
+import com.onegateafrica.ServiceImpl.UserDetailsServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +19,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.onegateafrica.ServiceImpl.UserDetailsServiceImpl;
+//import com.onegateafrica.serviceImpl.UserDetailsServiceImpl;
 
 public class AuthTokenFilter extends OncePerRequestFilter {
 	@Autowired
@@ -53,7 +55,6 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
 	private String parseJwt(HttpServletRequest request) {
 		String headerAuth = request.getHeader("Authorization");
-
 		if (StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ")) {
 			return headerAuth.substring(7, headerAuth.length());
 		}

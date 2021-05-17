@@ -3,38 +3,30 @@ package com.onegateafrica.ServiceImpl;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.onegateafrica.Entities.Consommateur;
-import com.onegateafrica.Entities.ERole;
-import com.onegateafrica.Entities.Role;
 import com.onegateafrica.Repositories.ConsommateurRepository;
-import com.onegateafrica.Repositories.RoleRepository;
 import com.onegateafrica.Service.ConsommateurService;
 
 @Service
 @Transactional
 public class ConsommateurServiceImpl implements ConsommateurService {
 
-	@Autowired
-	private ConsommateurRepository consommateurRepository;
 
-	@Autowired
-	private RoleRepository roleRepository;
+	private final ConsommateurRepository consommateurRepository;
 
+	public ConsommateurServiceImpl(ConsommateurRepository consommateurRepository){
+		this.consommateurRepository=consommateurRepository;
+
+	}
 	@Override
-	public Consommateur saveConsommateur(Consommateur consommateur) {
+	public Consommateur saveOrUpdateConsommateur(Consommateur consommateur) {
 		return consommateurRepository.save(consommateur);
 	}
 
 
-
-	@Override
-	public Consommateur findByEmail(String email) {
-		return consommateurRepository.findByEmail(email);
-	}
 
 	@Override
 	public List<Consommateur> getConsommateurs() {
@@ -65,5 +57,8 @@ public class ConsommateurServiceImpl implements ConsommateurService {
 	public Consommateur getConsommateurByPhoneNumber(String PhoneNumber) {
 		return consommateurRepository.findByPhoneNumber(PhoneNumber);
 	}
-
+	@Override
+	public Optional<Consommateur> getConsommateurByEmail(String Email) {
+		return consommateurRepository.findByEmail(Email);
+	}
 }

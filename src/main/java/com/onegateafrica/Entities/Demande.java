@@ -1,9 +1,7 @@
 package com.onegateafrica.Entities;
 
 
-
 import java.util.Date;
-
 
 import org.springframework.data.annotation.Id;
 
@@ -15,10 +13,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Demande {
-	@Id
-	private String id;
-	private Date DateDemande;
-	private String description;
-    
+  @Id
+  private String id;
+  private Date DateDemande;
+  private String description;
 
 }

@@ -5,23 +5,21 @@ import java.util.Optional;
 
 
 import com.onegateafrica.Entities.Consommateur;
-import com.onegateafrica.Entities.ERole;
 
 public interface ConsommateurService {
 	
-	public Consommateur saveConsommateur(Consommateur user);
+	 Consommateur saveOrUpdateConsommateur(Consommateur user);
 
+	 List<Consommateur> getConsommateurs();
 
-	public Consommateur findByEmail(String email);
+	 Optional<Consommateur> getConsommateur(Long id);
 
-	public List<Consommateur> getConsommateurs();
+	 void deleteConsommateur(Long id);
 
-	public Optional<Consommateur> getConsommateur(Long id);
+	 Boolean existsByEmail(String email);
 
-	public void deleteConsommateur(Long id);
+	 Consommateur getConsommateurByPhoneNumber(String PhoneNumber);
 
-	public Boolean existsByEmail(String email);
-	
-	public Consommateur getConsommateurByPhoneNumber(String PhoneNumber);
+	 Optional<Consommateur> getConsommateurByEmail(String Email);
 
 }

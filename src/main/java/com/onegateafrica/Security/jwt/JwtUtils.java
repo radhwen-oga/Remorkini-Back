@@ -4,13 +4,14 @@ import java.util.Date;
 
 import javax.crypto.SecretKey;
 
+import com.onegateafrica.ServiceImpl.UserDetailsImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
-import com.onegateafrica.ServiceImpl.UserDetailsImpl;
+//import com.onegateafrica.serviceImpl.UserDetailsImpl;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -19,33 +20,34 @@ import io.jsonwebtoken.security.Keys;
 public class JwtUtils {
 	private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
-	
+
 
 	@Value("${bezkoder.app.jwtExpirationMs}")
 	private int jwtExpirationMs;
+	private SecretKey key ;
 
 	public String generateJwtToken(Authentication authentication) {
 
 		UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
-		 SecretKey key = Keys.secretKeyFor(SignatureAlgorithm.HS256); //or HS384 or HS512
+		  key = Keys.secretKeyFor(SignatureAlgorithm.HS512); //or HS384 or HS512
 
 		return Jwts.builder()
 				.setSubject((userPrincipal.getEmail()))
 				.setIssuedAt(new Date())
 				.setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
 				.signWith(key)
-				//claim("roles", userPrincipal.getAuthorities())
+				.claim("roles", userPrincipal.getAuthorities())
 				.compact();
 	}
 
 	public String getUserNameFromJwtToken(String token) {
-		 SecretKey key = Keys.secretKeyFor(SignatureAlgorithm.HS256); //or HS384 or HS512
+		//  key = Keys.secretKeyFor(SignatureAlgorithm.HS256); //or HS384 or HS512
 
 		return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getSubject();
 	}
 
 	public boolean validateJwtToken(String authToken) {
-		 SecretKey key = Keys.secretKeyFor(SignatureAlgorithm.HS256); //or HS384 or HS512
+		 //SecretKey key = Keys.secretKeyFor(SignatureAlgorithm.HS256); //or HS384 or HS512
 
 		try {
 			Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(authToken);

@@ -1,5 +1,8 @@
 package com.onegateafrica.Security;
 
+import com.onegateafrica.Security.jwt.AuthEntryPointJwt;
+import com.onegateafrica.Security.jwt.AuthTokenFilter;
+import com.onegateafrica.ServiceImpl.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,15 +16,15 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.onegateafrica.Security.jwt.AuthEntryPointJwt;
-import com.onegateafrica.Security.jwt.AuthTokenFilter;
-import com.onegateafrica.ServiceImpl.UserDetailsServiceImpl;
+//import com.onegateafrica.security.jwt.AuthEntryPointJwt;
+//import com.onegateafrica.security.jwt.AuthTokenFilter;
+//import com.onegateafrica.serviceImpl.UserDetailsServiceImpl;
 
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(
-		// securedEnabled = true,
-		// jsr250Enabled = true,
+		 securedEnabled = true,
+		 jsr250Enabled = true,
 		prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired
@@ -55,7 +58,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 		http.cors().and().csrf().disable().exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
 				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()
-				.antMatchers("/api/**").permitAll().antMatchers("/api/test/**").permitAll().anyRequest()
+				.antMatchers("/api/auth/**").permitAll()
+				.antMatchers("/api/test/**").permitAll()
+				.antMatchers("/api/signUp/**").permitAll()
+				.antMatchers("/api/sendOTP").permitAll()
+				.antMatchers("/api/verifyOTP").permitAll()
+				.antMatchers("/api/visiteur/**").permitAll()
+				.antMatchers("/api/signupRemorqueur").permitAll()
+				.antMatchers("/api/**").permitAll()
+				.anyRequest()
 				.authenticated();
 
 		http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
