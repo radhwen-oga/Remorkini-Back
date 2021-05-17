@@ -16,9 +16,5 @@ public class TestController {
         return "welcome consommateur";
     }
 
-    @GetMapping("/remorqeur")
-    @PreAuthorize("hasRole('REMORQEUR')")
-    public String welcomeRemorqeur(){
-        return "welcome remorqeur";
-    }
+
 }
