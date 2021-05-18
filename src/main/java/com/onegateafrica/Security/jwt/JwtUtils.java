@@ -21,7 +21,6 @@ public class JwtUtils {
 	private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
 
-
 	@Value("${bezkoder.app.jwtExpirationMs}")
 	private int jwtExpirationMs;
 	private SecretKey key ;
@@ -29,8 +28,8 @@ public class JwtUtils {
 	public String generateJwtToken(Authentication authentication) {
 
 		UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
-		  key = Keys.secretKeyFor(SignatureAlgorithm.HS512); //or HS384 or HS512
-
+		key = Keys.secretKeyFor(SignatureAlgorithm.HS512); //or HS384 or HS512
+		System.out.println(userPrincipal.getEmail());;
 		return Jwts.builder()
 				.setSubject((userPrincipal.getEmail()))
 				.setIssuedAt(new Date())
@@ -65,5 +64,11 @@ public class JwtUtils {
 		}
 
 		return false;
+	}
+	public SecretKey getKey(){
+		return this.key;
+	}
+	public int getJwtExpirationMs(){
+		return this.jwtExpirationMs;
 	}
 }

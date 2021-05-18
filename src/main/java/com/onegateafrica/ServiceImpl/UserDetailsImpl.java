@@ -19,7 +19,6 @@ import lombok.Data;
 @Data
 public class UserDetailsImpl implements UserDetails {
 	private static final long serialVersionUID = 1L;
-	private Long idRemorqueur;
 	private Long id;
 	private String email;
 	private String firstName;
@@ -35,7 +34,7 @@ public class UserDetailsImpl implements UserDetails {
 
 	private Collection<? extends GrantedAuthority> authorities;
 
-	public UserDetailsImpl(Long idRemorqueur,Long id, String userName, String email, String password,String phoneNumber,String firstName, String lastName,
+	public UserDetailsImpl(Long id, String userName, String email, String password,String phoneNumber,String firstName, String lastName,
 						   Collection<? extends GrantedAuthority> authorities) {
 		this.id = id;
 		this.userName = userName;
@@ -45,7 +44,6 @@ public class UserDetailsImpl implements UserDetails {
 		this.phoneNumber=phoneNumber;
 		this.firstName = firstName;
 		this.lastName = lastName;
-		this.idRemorqueur=idRemorqueur;
 	}
 
 	public static UserDetailsImpl build(Consommateur consommateur) {
@@ -53,7 +51,6 @@ public class UserDetailsImpl implements UserDetails {
 				.map(role -> new SimpleGrantedAuthority(role.getRoleName().name()))
 				.collect(Collectors.toList());
 		return new UserDetailsImpl(
-				consommateur.getRemorqueur().getId(),
 				consommateur.getId(),
 				consommateur.getUserName(),
 				consommateur.getEmail(),
