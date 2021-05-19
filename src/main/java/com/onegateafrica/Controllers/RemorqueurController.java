@@ -100,7 +100,7 @@ public class RemorqueurController {
 
 
 
-                                Optional<Role> role = roleRepository.findByRoleName(ERole.ROLE_REMORQEUR);
+                                Optional<Role> role = roleRepository.findByRoleName(ERole.ROLE_REMORQUEUR);
 
 
                                 System.out.println(consommateur.getRoles());
