@@ -1,5 +1,6 @@
 package com.onegateafrica.Entities;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.*;
@@ -27,7 +28,7 @@ public  class Remorqueur  {
   private String cinNumber;
 
   @Column(name ="datedebut")
-  private String dateDebut;
+  private Date dateDebut;
 
   @Column(name ="cinphoto")
   private String cinPhoto;
@@ -44,9 +45,9 @@ public  class Remorqueur  {
   @Column(name ="patentephoto")
   private String patentePhoto;
 
-  @Column(name ="assurance")
+  /*@Column(name ="assurance")
   private String assurance;
-
+*/
   @Column(name ="nombreDeVote")
   private double nombreDeVote;
 
@@ -64,8 +65,12 @@ public  class Remorqueur  {
   @Column(name="isdisponible")
   private boolean isDisponible ;
   //////////////////////////
-  @JsonBackReference
+  //ajout Brahim ticket 1622
+  @Column(name="is_verified")
+  private boolean isVerified ;
+  //////////////////////////
+  /*@JsonBackReference
   @JsonIgnore
   @OneToMany(fetch = FetchType.LAZY, mappedBy = "remorqueur",cascade = CascadeType.ALL)
-  private List<DemandeRemorquage> listeDemandesRemorquage ;
+  private List<DemandeRemorquage> listeDemandesRemorquage ;*/
 }
