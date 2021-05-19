@@ -55,7 +55,7 @@ public class AuthenticationController {
     public ResponseEntity<?> AuthenticatedUserRealm(@RequestBody LoginForm loginRequest) {
 
       Optional<Consommateur> consommateur = consommateurService.getConsommateurByEmail(loginRequest.getEmail());
-      if (consommateur != null) {
+      if (consommateur.isPresent()) {
         if (bCryptPasswordEncoder.matches(loginRequest.getPassword(), consommateur.get().getPassword())) {
 
                 Authentication authentication = authenticationManager.authenticate(
@@ -68,7 +68,7 @@ public class AuthenticationController {
           List<String> roles = userDetails.getAuthorities().stream()
               .map(item -> item.getAuthority())
               .collect(Collectors.toList());
-          return ResponseEntity.ok(new JwtResponse(jwt, userDetails.getIdRemorqueur(),userDetails.getId(),
+          return ResponseEntity.ok(new JwtResponse(jwt,userDetails.getId(),
               userDetails.getUsername(),
               userDetails.getEmail(),
               roles,
