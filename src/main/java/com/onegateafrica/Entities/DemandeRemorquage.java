@@ -17,28 +17,28 @@ import java.io.Serializable;
 @Entity
 public class DemandeRemorquage implements Serializable {
 
-  @Id
-  @GeneratedValue
-  private Long id ;
+    @Id
+    @GeneratedValue
+    private Long id ;
 
 
-  @ManyToOne()
-  @JoinColumn(name="idConsommateur", nullable=false )
-  private Consommateur consommateur ;
+    @ManyToOne()
+    @JoinColumn(name="idConsommateur", nullable=false )
+    private Consommateur consommateur ;
 
-  @JsonIgnore
-  @ManyToOne(fetch=FetchType.LAZY)
-  @JoinColumn(name="idRemorquer" )
-  private Remorqueur remorqueur ;
+    @JsonIgnore
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="idRemorquer" )
+    private Remorqueur remorqueur ;
 
-  @Column(name = "description")
-  private String description ;
+    @Column(name = "description")
+    private String description ;
 
-  @Column(name = "finished")
-  private boolean isFinished ;
+    @Column(name = "finished")
+    private boolean isFinished ;
 
-  @Column(name = "declined")
-  private boolean isDeclined =false ;
+     @Column(name = "declined")
+    private boolean isDeclined =false ;
 
 
 

@@ -21,5 +21,6 @@ public interface ConsommateurRepository extends JpaRepository<Consommateur, Long
 
 
 
+
 }
 

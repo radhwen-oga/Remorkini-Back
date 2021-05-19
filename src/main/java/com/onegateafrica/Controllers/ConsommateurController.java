@@ -6,15 +6,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-
-import javax.servlet.ServletContext;
-
-import com.onegateafrica.Payloads.request.SignUpForm;
-
+//import com.onegateafrica.Entities.Remorqueur;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,7 +21,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,13 +28,12 @@ import com.onegateafrica.Controllers.utils.DataValidationUtils;
 import com.onegateafrica.Controllers.utils.ImageIO;
 import com.onegateafrica.Entities.Consommateur;
 import com.onegateafrica.Entities.ERole;
-import com.onegateafrica.Entities.Remorqueur;
 import com.onegateafrica.Entities.Role;
 import com.onegateafrica.Repositories.RoleRepository;
 import com.onegateafrica.Service.ConsommateurService;
 @CrossOrigin(origins = "*")
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/signUp")
 public class ConsommateurController {
 	private final ConsommateurService consommateurService;
 	private final BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -62,8 +56,6 @@ public class ConsommateurController {
 	}
 
 
-
-
 	@PutMapping("/updateConsommateur")
 	public Consommateur updateClient(@RequestBody Consommateur consommateur) {
 		Consommateur consommateur1 = consommateurService.getConsommateurByPhoneNumber(consommateur.getPhoneNumber());
@@ -71,26 +63,7 @@ public class ConsommateurController {
 		return consommateur;
 	}
 
-
-	@PutMapping("/updateProfilePicture")
-	public Consommateur updateClient(@RequestParam MultipartFile image, @RequestParam String phoneNumber) {
-
-		Consommateur consommateur1 = consommateurService.getConsommateurByPhoneNumber(phoneNumber);
-		String photoProfilFileName = phoneNumber + "_" + image.getOriginalFilename();
-		Boolean isPhotoProfilUploaded = ImageIO.uploadImage(image, photoProfilFileName);
-		if (isPhotoProfilUploaded == true && !image.isEmpty()) {
-			consommateur1.setUserPicture(photoProfilFileName);
-			consommateurService.saveOrUpdateConsommateur(consommateur1);
-			return consommateur1;
-		} else if (isPhotoProfilUploaded == false) {
-			return null;
-	}
-		return consommateur1;
-	}
-
-	//@PostMapping("/signupConsommateur")
-
-	/*@PostMapping("/signupConsommateur")
+	@PostMapping("/signupConsommateur")
 	public ResponseEntity < String > registerClient(
 			@RequestParam String password,
 			@RequestParam String email,
@@ -145,7 +118,7 @@ public class ConsommateurController {
 		} else {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Check phone number");
 		}
-	}*/
+	}
 
 
 	@GetMapping("/findAllConsommateur")
@@ -176,35 +149,6 @@ public class ConsommateurController {
 		}
 	}
 
-	@GetMapping(value = "/cinPicture", produces = MediaType.IMAGE_PNG_VALUE)
-	public @ResponseBody
-	byte[] getUserCINPicture(
-			@RequestParam("phoneNumber") String phoneNumber
-	) {
-
-		/**
-		 * http://localhost:8080/api/cinPicture?cinNumber=[cinNumber]
-		 */
-		if (DataValidationUtils.isValid(phoneNumber)) {
-			Consommateur consommateur = consommateurService.getConsommateurByPhoneNumber(phoneNumber);
-			String imageName = consommateur.getUserPicture();
-			if (consommateur == null || imageName==null || imageName.isBlank()) {
-				return ImageIO.getProfilImagePlaceholder();
-			} else {
-				try {
-					byte[] image = ImageIO.getImage(imageName);
-					return image;
-				} catch (Exception ex) {
-					ex.printStackTrace();
-					return ImageIO.getProfilImagePlaceholder();
-				}
-			}
-		} else {
-			return ImageIO.getProfilImagePlaceholder();
-		}
-	}
-
-
 	@GetMapping("/getConsommateurByPhoneNumber/{PhoneNumber}")
 	public Consommateur getClientByPhoneNumber(@PathVariable String PhoneNumber) {
 		if (DataValidationUtils.isValid(PhoneNumber)) {
@@ -212,5 +156,37 @@ public class ConsommateurController {
 		} else {
 			return null;
 		}
+	}
+
+
+
+	//ajouté par radhwen ticket 1612
+	@GetMapping("/consommateur/{id}")
+	//@PreAuthorize("hasRole('CONSOMMATEUR')")
+	public ResponseEntity<Consommateur> getConsommateurById (@PathVariable Long id) {
+		Optional<Consommateur> consommateur = consommateurService.getConsommateur(id);
+		if(consommateur.get() != null) {
+			return ResponseEntity.status(HttpStatus.FOUND).body(consommateur.get());
+		}
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(consommateur.get());
+	}
+
+	////////////////
+
+	//ajouté par radhwen ticket 1612
+	@GetMapping("/getConsommateurWithRemorqeur/{idConsommateur}")
+	//@PreAuthorize("hasRole('REMORQEUR')")
+	public ResponseEntity<Object> getConsommateurWithRemorqeur( @PathVariable  Long idConsommateur) {
+		if(idConsommateur != null && idConsommateur>0 ) {
+			Optional<Consommateur> consommateur = consommateurService.getConsommateur(idConsommateur);
+
+			if(consommateur.get() != null ){
+				consommateur.get().getRemorqueur();
+
+				return ResponseEntity.status(HttpStatus.FOUND).body(consommateur.get().getRemorqueur());
+			}
+			else {return ResponseEntity.status(HttpStatus.NOT_FOUND).body(consommateur.get());}
+		}
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body("please provide right path variables");
 	}
 }
