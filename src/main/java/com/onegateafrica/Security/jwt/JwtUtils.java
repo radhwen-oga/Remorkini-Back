@@ -29,7 +29,6 @@ public class JwtUtils {
 
 		UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
 		key = Keys.secretKeyFor(SignatureAlgorithm.HS512); //or HS384 or HS512
-		System.out.println(userPrincipal.getEmail());;
 		return Jwts.builder()
 				.setSubject((userPrincipal.getEmail()))
 				.setIssuedAt(new Date())

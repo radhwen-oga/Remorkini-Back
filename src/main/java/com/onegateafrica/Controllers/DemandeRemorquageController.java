@@ -17,10 +17,12 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+/*
 
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/demandeRemorquage")
+*/
 public class DemandeRemorquageController {
 
   private final RemorqueurService remorqueurService ;
@@ -33,7 +35,7 @@ public class DemandeRemorquageController {
     this.demandeRemorquageRepository = demandeRemorquageRepository;
     this.consommateurService = consommateurService;
   }
-
+/*
   @PostMapping("/addDemande")
   //@PreAuthorize("hasRole('CONSOMMATEUR')")
   public ResponseEntity< Object > addDemandeRemorquage(@RequestBody DemandeRemorquageDto demandeRemorquage){
@@ -115,5 +117,5 @@ public class DemandeRemorquageController {
       }
     }
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("verifier l'id de la demande");
-  }
+  }*/
   }
