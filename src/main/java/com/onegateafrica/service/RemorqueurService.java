@@ -1,7 +1,6 @@
 package com.onegateafrica.Service;
 
 import com.onegateafrica.Entities.Remorqueur;
-import org.springframework.data.repository.query.Param;
 
 
 import java.util.List;
@@ -19,10 +18,9 @@ public interface RemorqueurService {
 
     Optional<Remorqueur> findRemorqeurByCIN(String cin);
 
-    void updateDisponibility( long id,  boolean disponibility);
-
     List<Remorqueur> findAll();
 
+    void updateDisponibility( long id,  boolean disponibility);
 
 
 }

@@ -32,11 +32,6 @@ public  class RemorqueurServiceImpl implements RemorqueurService {
 	}
 
 	@Override
-	public void updateDisponibility(long id, boolean disponibility) {
-		remorqueurRepository.updateDisponibility(id , disponibility);
-	}
-
-	@Override
 	public List<Remorqueur> findAll() {
 		return remorqueurRepository.findAll();
 	}
@@ -54,5 +49,10 @@ public  class RemorqueurServiceImpl implements RemorqueurService {
 	@Override
 	public void deleteRemorqueur(Long id) {
 		remorqueurRepository.deleteById(id);
+	}
+
+	@Override
+	public void updateDisponibility(long id, boolean disponibility) {
+		remorqueurRepository.updateDisponibility(id , disponibility);
 	}
 }

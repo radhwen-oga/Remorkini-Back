@@ -1,16 +1,17 @@
 package com.onegateafrica.Entities;
 
+import java.util.Date;
+import java.util.List;
+
 import javax.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-
-import java.io.Serializable;
-import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -18,7 +19,7 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table(name = "remorqeur")
-public  class Remorqueur implements Serializable {
+public  class Remorqueur  {
   @Id
   @GeneratedValue
   private Long id;
@@ -27,7 +28,7 @@ public  class Remorqueur implements Serializable {
   private String cinNumber;
 
   @Column(name ="datedebut")
-  private String dateDebut;
+  private Date dateDebut;
 
   @Column(name ="cinphoto")
   private String cinPhoto;
@@ -44,15 +45,14 @@ public  class Remorqueur implements Serializable {
   @Column(name ="patentephoto")
   private String patentePhoto;
 
-  @Column(name ="assurance")
+  /*@Column(name ="assurance")
   private String assurance;
+*/
+  @Column(name ="nombreDeVote")
+  private double nombreDeVote;
 
-  @Column(name="nombreDeVote")
-  private Integer nombreDeVote=0;
-
-  @Column(name="noteRemorqueurMoyenne",precision=8, scale=2)
-  private double noteRemorqueurMoyenne=0;
-
+  @Column(name ="noteRemorqueurMoyenne")
+  private double noteRemorqueurMoyenne;
 
   @OneToOne
   private Consommateur consommateur;
@@ -61,13 +61,16 @@ public  class Remorqueur implements Serializable {
   @Enumerated(EnumType.STRING)
   private RemorqeurType remorqeurType;
 
-
   //ajout Radhwen ticket 1612
   @Column(name="isdisponible")
   private boolean isDisponible ;
   //////////////////////////
+  //ajout Brahim ticket 1622
+  @Column(name="is_verified")
+  private boolean isVerified ;
+  //////////////////////////
   @JsonBackReference
- @JsonIgnore
+  @JsonIgnore
   @OneToMany(fetch = FetchType.LAZY, mappedBy = "remorqueur",cascade = CascadeType.ALL)
   private List<DemandeRemorquage> listeDemandesRemorquage ;
 }

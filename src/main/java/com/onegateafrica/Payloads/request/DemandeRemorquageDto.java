@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class DemandeRemorquageDto {
 
-    private String description ;
-    private Long idConsommateur ;
+  private String description ;
+  private Long idConsommateur ;
 }
