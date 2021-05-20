@@ -37,7 +37,7 @@ public class Consommateur extends User {
         inverseJoinColumns = @JoinColumn(name = "roleId"))
     private Set<Role> roles = new HashSet<>();
 
-    /*@JsonIgnore
+    @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "consommateur",cascade = CascadeType.ALL  )
-    private List<DemandeRemorquage> listeDemandesRemorquage ;*/
+    private List<DemandeRemorquage> listeDemandesRemorquage ;
 }
