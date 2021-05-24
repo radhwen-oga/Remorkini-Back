@@ -99,6 +99,38 @@ public class DemandeRemorquageController {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("erreur");
   }
 
+ @PostMapping("/finirCourse/{idDemande}/{isFinished}")
+ public  ResponseEntity<Object> finirCourse (@PathVariable Long idDemande , @PathVariable Boolean isFinished) {
+    if(idDemande != null && isFinished != null) {
+      try{
+        Optional<DemandeRemorquage> demandeRemorquage = demandeRemorquageRepository.findById(idDemande);
+        demandeRemorquage.get().setFinished(isFinished);
+        demandeRemorquageRepository.save(demandeRemorquage.get());
+        return ResponseEntity.status(HttpStatus.OK).body(demandeRemorquage.get());
+      }
+      catch (Exception e){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("error");
+      }
+    }
+    return ResponseEntity.status(HttpStatus.OK).body("error");
+ }
+
+  @PostMapping("/updateCourse/{idDemande}/{isClientPickedUp}")
+  public  ResponseEntity<Object> updateCourse (@PathVariable Long idDemande , @PathVariable Boolean isClientPickedUp) {
+    if(idDemande != null && isClientPickedUp != null) {
+      try{
+        Optional<DemandeRemorquage> demandeRemorquage = demandeRemorquageRepository.findById(idDemande);
+        demandeRemorquage.get().setClientPickedUp(isClientPickedUp);
+        demandeRemorquageRepository.save(demandeRemorquage.get());
+        return ResponseEntity.status(HttpStatus.OK).body(demandeRemorquage.get());
+      }
+      catch (Exception e){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("error");
+      }
+    }
+    return ResponseEntity.status(HttpStatus.OK).body("error");
+  }
+
   @PostMapping("/declineDemande/{idConsommateur}/{idRemorqeur}/{idDemande}")
   //@PreAuthorize("hasRole('REMORQEUR')")
   public ResponseEntity< Object > declineDemande(@PathVariable Long idConsommateur ,@PathVariable Long idRemorqeur ,@PathVariable Long idDemande  ) {
