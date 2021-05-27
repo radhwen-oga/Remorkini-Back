@@ -150,9 +150,9 @@ public class RemorqueurController {
                 remorqueur.setMatriculeRemorquage(body.getMatriculeRemorquage());
                 remorqueur.setVerified(false);
                 remorqueur.setRaisonSociale(body.getRaisonSociale());
+                remorqueur.setRemorqeurType(RemorqeurType.LIBRE);
                 remorqueur.setPatentePhoto(body.getPatentePhoto());
                 remorqueurService.saveOrUpdateRemorqueur(remorqueur);
-                remorqueur.setRemorqeurType(RemorqeurType.LIBRE);
                 return ResponseEntity.status(HttpStatus.CREATED).body("created");
             }
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("error");

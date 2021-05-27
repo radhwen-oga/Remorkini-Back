@@ -35,9 +35,8 @@ public class DemandeRemorquageController {
     this.demandeRemorquageRepository = demandeRemorquageRepository;
     this.consommateurService = consommateurService;
   }
-/*
   @PostMapping("/addDemande")
-  //@PreAuthorize("hasRole('CONSOMMATEUR')")
+  @PreAuthorize("hasRole('CONSOMMATEUR')")
   public ResponseEntity< Object > addDemandeRemorquage(@RequestBody DemandeRemorquageDto demandeRemorquage){
     Optional<Consommateur> consommateur = consommateurService.getConsommateur(demandeRemorquage.getIdConsommateur());
 
@@ -117,5 +116,5 @@ public class DemandeRemorquageController {
       }
     }
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("verifier l'id de la demande");
-  }*/
+  }
   }

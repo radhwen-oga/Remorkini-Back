@@ -10,13 +10,13 @@ import org.hibernate.annotations.Fetch;
 import javax.persistence.*;
 import java.io.Serializable;
 
-/*@Data
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 
-@Entity*/
+@Entity
 public class DemandeRemorquage implements Serializable {
-/*
+
 
   @Id
   @GeneratedValue
@@ -40,7 +40,6 @@ public class DemandeRemorquage implements Serializable {
 
   @Column(name = "declined")
   private boolean isDeclined =false ;
-*/
 
 
 
