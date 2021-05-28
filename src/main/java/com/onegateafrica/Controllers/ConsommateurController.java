@@ -11,6 +11,7 @@ import javax.servlet.ServletContext;
 
 import com.onegateafrica.Payloads.request.SignUpForm;
 
+import com.onegateafrica.Payloads.request.UpdateForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -65,88 +66,70 @@ public class ConsommateurController {
 
 
 	@PutMapping("/updateConsommateur")
-	public Consommateur updateClient(@RequestBody Consommateur consommateur) {
-		Consommateur consommateur1 = consommateurService.getConsommateurByPhoneNumber(consommateur.getPhoneNumber());
-		consommateurService.saveOrUpdateConsommateur(consommateur1);
-		return consommateur;
-	}
-
-
-	@PutMapping("/updateProfilePicture")
-	public Consommateur updateClient(@RequestParam MultipartFile image, @RequestParam String phoneNumber) {
-
-		Consommateur consommateur1 = consommateurService.getConsommateurByPhoneNumber(phoneNumber);
-		String photoProfilFileName = phoneNumber + "_" + image.getOriginalFilename();
-		Boolean isPhotoProfilUploaded = ImageIO.uploadImage(image, photoProfilFileName);
-		if (isPhotoProfilUploaded == true && !image.isEmpty()) {
-			consommateur1.setUserPicture(photoProfilFileName);
-			consommateurService.saveOrUpdateConsommateur(consommateur1);
-			return consommateur1;
-		} else if (isPhotoProfilUploaded == false) {
-			return null;
-	}
-		return consommateur1;
-	}
-
-	//@PostMapping("/signupConsommateur")
-
-	/*@PostMapping("/signupConsommateur")
-	public ResponseEntity < String > registerClient(
-			@RequestParam String password,
-			@RequestParam String email,
-			@RequestParam String firstName,
-			@RequestParam String lastName,
-			@RequestParam String phoneNumber,
-			@RequestParam( name="photoProfileFile",required = false) MultipartFile photoProfileFile) {
-		if (DataValidationUtils.isValid(phoneNumber)) {
-			Consommateur user = consommateurService.getConsommateurByPhoneNumber(phoneNumber);
-			Consommateur insertableUser = new Consommateur();
-			if (user != null) {
-				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Phone number already exists.");
-			} else {
-				if (DataValidationUtils.isValid(firstName) &&
-						DataValidationUtils.isValid(lastName) &&
-						DataValidationUtils.isValid(email)) {
-					insertableUser.setEmail(email);
-					insertableUser.setFirstName(firstName);
-					insertableUser.setLastName(lastName);
-					insertableUser.setUserName(firstName+lastName);
-					insertableUser.setPassword(bCryptPasswordEncoder.encode(password));
-					insertableUser.setPhoneNumber(phoneNumber);
-					Set<Role> roles = new HashSet<>();
-					Optional<Role> role = roleRepository.findByRoleName(ERole.ROLE_CONSOMMATEUR);
-					if(role.get()!= null)
-						roles.add(role.get());
-					else
-						throw new RuntimeException("role not found");
-					insertableUser.setRoles(roles);
-					if (photoProfileFile == null) {
-						insertableUser.setUserPicture("DEFAULT");
-						consommateurService.saveOrUpdateConsommateur(insertableUser);
-						return ResponseEntity.status(HttpStatus.ACCEPTED).body("OK");
+	public ResponseEntity<String> registerClient(@RequestBody UpdateForm body) {
+		if (DataValidationUtils.isValid(body.getPhoneNumber())) {
+			Consommateur consommateur = consommateurService.getConsommateur(body.getId()).get();
+			if (DataValidationUtils.isValid(body.getFirstName()) &&
+					DataValidationUtils.isValid(body.getLastName()) &&
+					DataValidationUtils.isValid(body.getEmail())) {
+				if(body.getEmail() != null && !body.getEmail().equals("")){
+					consommateur.setEmail(body.getEmail());
+				}
+				if(body.getFirstName() != null && !body.getFirstName().equals("")){
+					consommateur.setFirstName(body.getFirstName());
+				}
+				if(body.getLastName() != null && !body.getLastName().equals("")) {
+					consommateur.setLastName(body.getLastName());
+				}
+				if(body.getFirstName() != null && !body.getFirstName().equals("")) {
+					if(body.getLastName() != null && !body.getLastName().equals("")) {
+						consommateur.setUserName(body.getFirstName() + body.getLastName());
 					}
 					else {
-						String photoProfilFileName = phoneNumber + "_" + photoProfileFile.getOriginalFilename();
-						Boolean isPhotoProfilUploaded = ImageIO.uploadImage(photoProfileFile, photoProfilFileName);
-						if (isPhotoProfilUploaded == true && !photoProfileFile.isEmpty()) {
-							insertableUser.setUserPicture(photoProfilFileName);
-							consommateurService.saveOrUpdateConsommateur(insertableUser);
-							return ResponseEntity.status(HttpStatus.ACCEPTED).body("OK");
-						} else if (isPhotoProfilUploaded == false) {
-							return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error loading photo");
-						} else {
-							return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("BAD REQUEST");
-						}
+						consommateur.setUserName(body.getFirstName() + consommateur.getLastName());
 					}
-				} else {
-					return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("NULL");
 				}
+				else{
+					if(body.getLastName() != null && !body.getLastName().equals("")) {
+						consommateur.setUserName(consommateur.getFirstName() + body.getLastName());
+					}
+				}
+				if(body.getPassword() != null && !body.getPassword().equals("")) {
+					consommateur.setPassword(bCryptPasswordEncoder.encode(body.getPassword()));
+				}
+				if(body.getPhoneNumber() != null && !body.getPhoneNumber().equals("")) {
+					consommateur.setPhoneNumber(body.getPhoneNumber());
+				}
+
+				consommateurService.saveOrUpdateConsommateur(consommateur);
+				return ResponseEntity.status(HttpStatus.ACCEPTED).body("OK");
+
+			} else {
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("INVALID FIELDS");
 			}
 		} else {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Check phone number");
 		}
-	}*/
+	}
 
+
+	@PutMapping("/updateProfilePicture")
+	public ResponseEntity<String> updateClient(@RequestParam MultipartFile image, @RequestParam String phoneNumber) {
+		System.out.println("here");
+		System.out.println(phoneNumber);
+		Consommateur consommateur = consommateurService.getConsommateurByPhoneNumber(phoneNumber);
+		String photoProfilFileName = phoneNumber + "_" + image.getOriginalFilename();
+		Boolean isPhotoProfilUploaded = ImageIO.uploadImage(image, photoProfilFileName);
+		if (isPhotoProfilUploaded == true && !image.isEmpty()) {
+			consommateur.setUserPicture(photoProfilFileName);
+			consommateurService.saveOrUpdateConsommateur(consommateur);
+			return ResponseEntity.status(HttpStatus.OK).body(consommateur.getUserPicture());
+		} else if (isPhotoProfilUploaded == false) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("INVALID FIELDS");
+
+	}
+		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("something went wrong");
+	}
 
 	@GetMapping("/findAllConsommateur")
 	public List < Consommateur > getClients() {
@@ -176,7 +159,7 @@ public class ConsommateurController {
 		}
 	}
 
-	@GetMapping(value = "/cinPicture", produces = MediaType.IMAGE_PNG_VALUE)
+	@GetMapping(value = "/public/picture", produces = MediaType.IMAGE_PNG_VALUE)
 	public @ResponseBody
 	byte[] getUserCINPicture(
 			@RequestParam("phoneNumber") String phoneNumber
@@ -186,6 +169,7 @@ public class ConsommateurController {
 		 * http://localhost:8080/api/cinPicture?cinNumber=[cinNumber]
 		 */
 		if (DataValidationUtils.isValid(phoneNumber)) {
+			System.out.println(phoneNumber);
 			Consommateur consommateur = consommateurService.getConsommateurByPhoneNumber(phoneNumber);
 			String imageName = consommateur.getUserPicture();
 			if (consommateur == null || imageName==null || imageName.isBlank()) {
