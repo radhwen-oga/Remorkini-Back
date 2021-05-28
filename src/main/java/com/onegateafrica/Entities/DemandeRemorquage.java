@@ -41,6 +41,10 @@ public class DemandeRemorquage implements Serializable {
   @Column(name = "declined")
   private boolean isDeclined =false ;
 
+  @Column(name = "Clientpickedup")
+  private boolean isClientPickedUp =false ;
+
+
 
 
 }

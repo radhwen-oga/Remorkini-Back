@@ -72,5 +72,5 @@ public  class Remorqueur  {
   @JsonBackReference
   @JsonIgnore
   @OneToMany(fetch = FetchType.LAZY, mappedBy = "remorqueur",cascade = CascadeType.ALL)
-  private List<DemandeRemorquage> listeDemandesRemorquage;
+  private List<DemandeRemorquage> listeDemandesRemorquage ;
 }
