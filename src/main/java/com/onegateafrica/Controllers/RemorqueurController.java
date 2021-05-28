@@ -57,18 +57,21 @@ public class RemorqueurController {
     @GetMapping("/remorqeur/{id}")
     //@PreAuthorize("hasRole('REMORQEUR')")
     public ResponseEntity<Remorqueur> getRemorqeurById(@PathVariable Long id) {
-        Optional<Remorqueur> remorqueur = remorqueurService.getRemorqueur(id);
-        if (remorqueur.get() != null) {
-            return ResponseEntity.status(HttpStatus.FOUND).body(remorqueur.get());
+        if(id != null) {
+            Optional<Remorqueur> remorqueur = remorqueurService.getRemorqueur(id);
+            if (remorqueur.get() != null) {
+                return ResponseEntity.status(HttpStatus.OK).body(remorqueur.get());
+            }
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(remorqueur.get());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
     }
 
     //ajouté par radhwen ticket 1612
     @PostMapping("/remorqeur/{remorqeurId}/{disponibility}")
     // @PreAuthorize("hasRole('REMORQEUR')")
     public ResponseEntity<Object> updateRemorqeur(@PathVariable Long remorqeurId, @PathVariable Boolean disponibility) {
-        if (remorqeurId != null && remorqeurId > 0 && disponibility != null) {
+        if (remorqeurId != null && disponibility != null) {
             Optional<Remorqueur> remorqueur = remorqueurService.getRemorqueur(remorqeurId);
             if (remorqueur.get() != null) {
                 try {
@@ -216,6 +219,7 @@ public class RemorqueurController {
         remorqueurService.deleteRemorqueur(id);
 
     }
+
 
 
 }
