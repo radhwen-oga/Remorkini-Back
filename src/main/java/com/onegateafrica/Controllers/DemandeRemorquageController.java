@@ -39,25 +39,30 @@ public class DemandeRemorquageController {
   @PostMapping("/addDemande")
   //@PreAuthorize("hasRole('CONSOMMATEUR')")
   public ResponseEntity< Object > addDemandeRemorquage(@RequestBody DemandeRemorquageDto demandeRemorquageDto){
-    Optional<Consommateur> consommateur = consommateurService.getConsommateur(demandeRemorquageDto.getIdConsommateur());
 
-    DemandeRemorquage demandeRemorquage = new DemandeRemorquage();
-    Consommateur entity = consommateur.get();
+   if(demandeRemorquageDto != null) {
+     try{
+       Optional<Consommateur> consommateur = consommateurService.getConsommateur(demandeRemorquageDto.getIdConsommateur());
 
-    demandeRemorquage.setConsommateur(entity);
+       DemandeRemorquage demandeRemorquage = new DemandeRemorquage();
+       Consommateur entity = consommateur.get();
 
-    List<DemandeRemorquage> listeDemandeRemorquage = new ArrayList<>();
-    listeDemandeRemorquage.add(demandeRemorquage);
+       demandeRemorquage.setConsommateur(entity);
 
-    entity.setListeDemandesRemorquage(listeDemandeRemorquage);
-    try{
-      consommateurService.saveOrUpdateConsommateur(entity);
-      return ResponseEntity.status(HttpStatus.OK).body("ajout fait avec succés");
-    }
-    catch (Exception e) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failure");
-    }
+       List<DemandeRemorquage> listeDemandeRemorquage = new ArrayList<>();
+       listeDemandeRemorquage.add(demandeRemorquage);
 
+       entity.setListeDemandesRemorquage(listeDemandeRemorquage);
+
+       consommateurService.saveOrUpdateConsommateur(entity);
+       return ResponseEntity.status(HttpStatus.OK).body("ajout fait avec succés");
+     }
+     catch (Exception e) {
+       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("erreur");
+     }
+   }
+
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("erreur ");
 
   }
 
