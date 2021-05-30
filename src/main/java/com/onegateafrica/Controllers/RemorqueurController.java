@@ -66,6 +66,19 @@ public class RemorqueurController {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
     }
+    @GetMapping("/remorqeurpn")
+    public ResponseEntity<Remorqueur> getRemorqeurByPhoneNumber(@RequestParam("phoneNumber") String phoneNumber) {
+        if(phoneNumber != null) {
+            Optional<Remorqueur> remorqueur = remorqueurService.findRemorqueurByPhoneNumber(phoneNumber);
+            if (remorqueur.isPresent()){
+                return ResponseEntity.status(HttpStatus.OK).body(remorqueur.get());
+            }
+
+        }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+    }
+
 
     //ajouté par radhwen ticket 1612
     @PostMapping("/remorqeur/{remorqeurId}/{disponibility}")
