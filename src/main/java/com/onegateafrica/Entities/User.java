@@ -2,6 +2,7 @@ package com.onegateafrica.Entities;
 
 import javax.persistence.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sun.istack.NotNull;
 
 import lombok.AllArgsConstructor;
@@ -22,6 +23,7 @@ public abstract class User {
 	private Long id;
 	@NotNull
 	private String phoneNumber;
+	@JsonIgnore
 	@NotNull
 	private String password;
 	@NotNull

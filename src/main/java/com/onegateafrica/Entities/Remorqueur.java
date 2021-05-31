@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode
 @NoArgsConstructor
 @Entity
-@Table(name = "remorqeur")
+@Table(name = "remorqueur")
 public  class Remorqueur  {
   @Id
   @GeneratedValue
