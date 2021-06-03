@@ -3,5 +3,5 @@ package com.onegateafrica.Service;
 import io.github.jav.exposerversdk.PushClientException;
 
 public interface PushNotificationService {
-	void ajouterPushNotification() throws PushClientException, InterruptedException;
+	void ajouterPushNotification(String recipient , String title ,String message) throws PushClientException, InterruptedException;
 }

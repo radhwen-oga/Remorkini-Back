@@ -24,10 +24,10 @@ import com.onegateafrica.Service.PushNotificationService;
 public class PushNotificationServiceImpl implements PushNotificationService {
 
 	@Override
-	public void ajouterPushNotification() throws PushClientException, InterruptedException {
-		 String recipient = "ExponentPushToken[thisisaninvalidtokennn]"; // To test, you must replace the recipient with a valid token!
-	        String title = "My message title!";
-	        String message = "A push message from ExampleExpoServer";
+	public void ajouterPushNotification(String recipient , String title ,String message) throws PushClientException, InterruptedException {
+//		 String recipient = "ExponentPushToken[thisisaninvalidtokennn]"; // To test, you must replace the recipient with a valid token!
+//	        String title = "My message title!";
+//	        String message = "A push message from ExampleExpoServer";
 
 	        if (!PushClient.isExponentPushToken(recipient))
 	            throw new Error("Token:" + recipient + " is not a valid token.");
@@ -119,7 +119,7 @@ public class PushNotificationServiceImpl implements PushNotificationService {
 
 	        }
 
-	        System.exit(0);
+	       return ;
 	    }
 		
 	
