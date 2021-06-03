@@ -7,11 +7,9 @@ import com.onegateafrica.Payloads.request.DemandeRemorquageDto;
 import com.onegateafrica.Repositories.DemandeRemorquageRepository;
 import com.onegateafrica.Service.ConsommateurService;
 import com.onegateafrica.Service.RemorqueurService;
-import org.apache.http.protocol.HTTP;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
