@@ -48,6 +48,7 @@ public class DemandeRemorquageController {
        Consommateur entity = consommateur.get();
 
        demandeRemorquage.setConsommateur(entity);
+       demandeRemorquage.setDescription(demandeRemorquageDto.getDescription());
 
        List<DemandeRemorquage> listeDemandeRemorquage = new ArrayList<>();
        listeDemandeRemorquage.add(demandeRemorquage);

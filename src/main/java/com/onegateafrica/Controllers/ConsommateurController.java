@@ -9,6 +9,7 @@ import java.util.Set;
 
 import javax.servlet.ServletContext;
 
+import com.onegateafrica.Payloads.request.PushTokenDto;
 import com.onegateafrica.Payloads.request.SignUpForm;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,6 +72,21 @@ public class ConsommateurController {
 		return consommateur;
 	}
 
+	@PutMapping("/updateConsommateurPushToken/{idConsommateur}")
+	public ResponseEntity<Object> updateConsommateurPushToken(@RequestBody PushTokenDto pushTokenDto , @PathVariable Long idConsommateur) {
+		if(pushTokenDto !=null && pushTokenDto.getToken()!=null) {
+			try {
+				Consommateur consommateur = consommateurService.getConsommateur(idConsommateur).get();
+				consommateur.setExpoPushToken(pushTokenDto.getToken());
+				consommateurService.saveOrUpdateConsommateur(consommateur);
+				return ResponseEntity.status(HttpStatus.CREATED) .body(consommateur);
+			}
+			catch(Exception e) {
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("erreur");
+			}
+		}
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("le token ne peut pas étre null");
+	}
 
 	@PutMapping("/updateProfilePicture")
 	public Consommateur updateClient(@RequestParam MultipartFile image, @RequestParam String phoneNumber) {
