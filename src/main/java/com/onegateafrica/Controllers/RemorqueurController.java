@@ -49,6 +49,15 @@ public class RemorqueurController {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.roleRepository = roleRepository;
     }
+    @GetMapping("/getConsommateurAsRemorqueur/{idConsommateur}")
+    public ResponseEntity<Object> getConsommateurAsRemorqueur(@PathVariable Long idConsommateur) {
+        if(idConsommateur!= null) {
+            Remorqueur remorqueur = remorqueurService.getConsommateurAsRemorqeur(idConsommateur).get();
+            return ResponseEntity.status(HttpStatus.OK).body(remorqueur);
+        }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+    }
 
     //ajouté par radhwen ticket 1612
     @GetMapping("/remorqeur/{id}")

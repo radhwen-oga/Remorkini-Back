@@ -55,4 +55,9 @@ public  class RemorqueurServiceImpl implements RemorqueurService {
 	public void updateDisponibility(long id, boolean disponibility) {
 		remorqueurRepository.updateDisponibility(id , disponibility);
 	}
+
+	@Override
+	public Optional<Remorqueur> getConsommateurAsRemorqeur(Long idConsommateur) {
+		return remorqueurRepository.getUserAsRemorqeur(idConsommateur);
+	}
 }
