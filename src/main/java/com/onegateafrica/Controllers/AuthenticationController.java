@@ -5,12 +5,17 @@ import com.onegateafrica.Entities.Consommateur;
 import com.onegateafrica.Entities.ERole;
 import com.onegateafrica.Entities.Role;
 import com.onegateafrica.Payloads.request.LoginForm;
+import com.onegateafrica.Payloads.request.tokenForm;
 import com.onegateafrica.Payloads.request.SignUpForm;
 import com.onegateafrica.Payloads.response.JwtResponse;
 import com.onegateafrica.Repositories.RoleRepository;
 import com.onegateafrica.Security.jwt.JwtUtils;
-import com.onegateafrica.ServiceImpl.UserDetailsImpl;
 import com.onegateafrica.Service.ConsommateurService;
+import com.onegateafrica.ServiceImpl.UserDetailsImpl;
+import io.jsonwebtoken.Jwts;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,11 +26,15 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
+import java.util.*;
 import java.util.stream.Collectors;
+
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -54,9 +63,9 @@ public class AuthenticationController {
     @PostMapping("/signin")
     public ResponseEntity<?> AuthenticatedUserRealm(@RequestBody LoginForm loginRequest) {
 
-      Optional<Consommateur> consommateur = consommateurService.getConsommateurByEmail(loginRequest.getEmail());
-      if (consommateur.isPresent()) {
-        if (bCryptPasswordEncoder.matches(loginRequest.getPassword(), consommateur.get().getPassword())) {
+        Optional<Consommateur> consommateur = consommateurService.getConsommateurByEmail(loginRequest.getEmail());
+        if (consommateur.isPresent()) {
+            if (bCryptPasswordEncoder.matches(loginRequest.getPassword(), consommateur.get().getPassword())) {
 
                 Authentication authentication = authenticationManager.authenticate(
                         new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
@@ -65,22 +74,136 @@ public class AuthenticationController {
                 String jwt = jwtUtils.generateJwtToken(authentication);
                 UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-          List<String> roles = userDetails.getAuthorities().stream()
-              .map(item -> item.getAuthority())
-              .collect(Collectors.toList());
-          return ResponseEntity.ok(new JwtResponse(jwt,userDetails.getId(),
-              userDetails.getUsername(),
-              userDetails.getEmail(),
-              roles,
-              userDetails.getPhoneNumber(),
-              userDetails.getFirstName(),
-              userDetails.getLastName()));
+                List<String> roles = userDetails.getAuthorities().stream()
+                        .map(item -> item.getAuthority())
+                        .collect(Collectors.toList());
+                return ResponseEntity.ok(new JwtResponse(jwt, userDetails.getId(),
+                        userDetails.getUsername(),
+                        userDetails.getEmail(),
+                        roles,
+                        userDetails.getPhoneNumber(),
+                        userDetails.getFirstName(),
+                        userDetails.getLastName()));
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Check email or password");
+            }
         } else {
-          return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Check email or password");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("NOT FOUND");
         }
-      } else {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("NOT FOUND");
-      }
+    }
+
+    @PostMapping("/signinGoogle")
+    public ResponseEntity<?> AthenticateWithGoogle(@RequestBody tokenForm form) {
+        String token = form.getToken();
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://www.googleapis.com/userinfo/v2/me"))
+                .timeout(Duration.ofMinutes(1))
+                .header("Authorization", "Bearer " + token)
+                .GET()
+                .build();
+        HttpResponse<String> response =
+                null;
+        try {
+            response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        if (response.statusCode() == 200) {
+            JSONParser jsonParser = new JSONParser();
+            try {
+                JSONObject jsonObject = (JSONObject) jsonParser.parse(response.body());
+                String email = (String) jsonObject.get("email");
+                Optional<Consommateur> consommateurO = consommateurService.getConsommateurByEmail(email);
+                if (consommateurO.isPresent()) {
+                    Consommateur consommateur = consommateurO.get();
+                    List<String> roles =consommateur.getRoles().stream()
+                            .map(item -> item.getRoleName().toString())
+                            .collect(Collectors.toList());
+                    String jwt = Jwts.builder()
+                            .setSubject((consommateur.getEmail()))
+                            .setIssuedAt(new Date())
+                            .setExpiration(new Date((new Date()).getTime() + jwtUtils.getJwtExpirationMs()))
+                            .signWith(jwtUtils.getKey())
+                            .claim("roles", consommateur.getRoles())
+                            .compact();
+                    return ResponseEntity.ok(new JwtResponse(jwt,consommateur.getId(),
+                            consommateur.getUserName(),
+                            consommateur.getEmail(),
+                            roles,
+                            consommateur.getPhoneNumber(),
+                            consommateur.getFirstName(),
+                            consommateur.getLastName()));
+                }
+                else {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response.body());
+                }
+
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        System.out.println("'error");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response.body());
+    }
+    @PostMapping("/signinFacebook")
+    public ResponseEntity<?> AthenticateWithFacebook(@RequestBody tokenForm form) {
+        String token = form.getToken();
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://graph.facebook.com/me?fields=id,first_name,last_name,email&access_token="+token))
+                .timeout(Duration.ofMinutes(1))
+                .header("Content-Type", "application/json ")
+                .GET()
+                .build();
+        HttpResponse<String> response =
+                null;
+        try {
+            response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        if (response.statusCode() == 200) {
+            JSONParser jsonParser = new JSONParser();
+            try {
+                JSONObject jsonObject = (JSONObject) jsonParser.parse(response.body());
+                String email = (String) jsonObject.get("email");
+                System.out.println(email);
+                Optional<Consommateur> consommateurO = consommateurService.getConsommateurByEmail(email);
+                if (consommateurO.isPresent()) {
+                    Consommateur consommateur = consommateurO.get();
+                    List<String> roles =consommateur.getRoles().stream()
+                            .map(item -> item.getRoleName().toString())
+                            .collect(Collectors.toList());
+                    String jwt = Jwts.builder()
+                            .setSubject((consommateur.getEmail()))
+                            .setIssuedAt(new Date())
+                            .setExpiration(new Date((new Date()).getTime() + jwtUtils.getJwtExpirationMs()))
+                            .signWith(jwtUtils.getKey())
+                            .claim("roles", consommateur.getRoles())
+                            .compact();
+                    return ResponseEntity.ok(new JwtResponse(jwt,consommateur.getId(),
+                            consommateur.getUserName(),
+                            consommateur.getEmail(),
+                            roles,
+                            consommateur.getPhoneNumber(),
+                            consommateur.getFirstName(),
+                            consommateur.getLastName()));
+                }
+                else {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response.body());
+                }
+
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        System.out.println("'error");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response.body());
     }
 
     @PostMapping("/signupConsommateur")
@@ -90,7 +213,7 @@ public class AuthenticationController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Phone number already exists.");
             }
             if (consommateurService.getConsommateurByEmail(body.getEmail()).isPresent()) {
-              return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email already exists.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email already exists.");
             }
             Consommateur consommateur = new Consommateur();
             if (DataValidationUtils.isValid(body.getFirstName()) &&
