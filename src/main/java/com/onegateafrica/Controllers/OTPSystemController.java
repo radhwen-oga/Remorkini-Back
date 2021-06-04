@@ -53,11 +53,11 @@ public class OTPSystemController {
     }
 
     @PostMapping("/sendOTP")
-    public Boolean sendOTP(@RequestParam("phoneNumberInput") String phoneNumberInput) {
+    public ResponseEntity<String>  sendOTP(@RequestParam("phoneNumberInput") String phoneNumberInput) {
 
         if (phoneNumberInput != null) {
             Consommateur consommateur = consommateurService.getConsommateurByPhoneNumber(phoneNumberInput);
-            if (consommateur == null) {
+            if (consommateur != null) {
                 OTPSystem otpSystem = new OTPSystem();
                 otpSystem.setPhoneNumber(phoneNumberInput);
                 otpSystem.setOtp(String.valueOf(((int) (Math.random() * (10000 - 1000))) + 1000));
@@ -65,12 +65,12 @@ public class OTPSystemController {
                 otpData.put(phoneNumberInput, otpSystem);
                 Message.creator(new PhoneNumber("+216" + phoneNumberInput), new PhoneNumber(PHONE_NUMBER),
                         "Your OTP is: " + otpSystem.getOtp()).create();
-                return true;
+                return ResponseEntity.status(HttpStatus.OK).body("OTP Sent");
             } else {
-                return false;
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Bad request");
             }
         } else {
-            return false;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Enter a valid phone number");
         }
     }
 
