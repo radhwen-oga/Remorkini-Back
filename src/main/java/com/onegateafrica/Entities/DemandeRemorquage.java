@@ -28,7 +28,7 @@ public class DemandeRemorquage implements Serializable {
   private Consommateur consommateur ;
 
   @JsonIgnore
-  @ManyToOne(fetch=FetchType.LAZY)
+  @ManyToOne()
   @JoinColumn(name="idRemorquer" )
   private Remorqueur remorqueur ;
 
@@ -36,13 +36,13 @@ public class DemandeRemorquage implements Serializable {
   private String description ;
 
   @Column(name = "finished")
-  private boolean isFinished ;
+  private Boolean isFinished ;
 
   @Column(name = "declined")
-  private boolean isDeclined =false ;
+  private Boolean isDeclined  ;
 
   @Column(name = "Clientpickedup")
-  private boolean isClientPickedUp =false ;
+  private Boolean isClientPickedUp  ;
 
 
 
