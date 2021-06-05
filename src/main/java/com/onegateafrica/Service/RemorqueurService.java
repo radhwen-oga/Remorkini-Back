@@ -15,7 +15,7 @@ public interface RemorqueurService {
     List<Remorqueur> getRemorqueurs();
     Optional<Remorqueur> getRemorqueur(Long id);
     void  deleteRemorqueur(Long id);
-
+    Optional<Remorqueur> findRemorqueurByPhoneNumber(String phoneNumber);
     Optional<Remorqueur> findRemorqeurByCIN(String cin);
 
     List<Remorqueur> findAll();

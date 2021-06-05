@@ -52,6 +52,11 @@ public  class RemorqueurServiceImpl implements RemorqueurService {
 	}
 
 	@Override
+	public Optional<Remorqueur> findRemorqueurByPhoneNumber(String phoneNumber) {
+		return remorqueurRepository.findByPhoneNumber(phoneNumber);
+	}
+
+	@Override
 	public void updateDisponibility(long id, boolean disponibility) {
 		remorqueurRepository.updateDisponibility(id , disponibility);
 	}
