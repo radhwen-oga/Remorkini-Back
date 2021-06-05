@@ -30,6 +30,9 @@ public class Consommateur extends User {
     @OneToOne(mappedBy = "consommateur")
     private Remorqueur remorqueur;
 
+    @Column(name="expopushtoken")
+    private String expoPushToken ;
+
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(	name = "user_roles",

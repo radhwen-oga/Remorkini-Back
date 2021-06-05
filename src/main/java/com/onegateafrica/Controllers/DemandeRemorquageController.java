@@ -7,11 +7,9 @@ import com.onegateafrica.Payloads.request.DemandeRemorquageDto;
 import com.onegateafrica.Repositories.DemandeRemorquageRepository;
 import com.onegateafrica.Service.ConsommateurService;
 import com.onegateafrica.Service.RemorqueurService;
-import org.apache.http.protocol.HTTP;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -48,14 +46,16 @@ public class DemandeRemorquageController {
        Consommateur entity = consommateur.get();
 
        demandeRemorquage.setConsommateur(entity);
+       demandeRemorquage.setDescription(demandeRemorquageDto.getDescription());
 
        List<DemandeRemorquage> listeDemandeRemorquage = new ArrayList<>();
        listeDemandeRemorquage.add(demandeRemorquage);
 
        entity.setListeDemandesRemorquage(listeDemandeRemorquage);
 
-       consommateurService.saveOrUpdateConsommateur(entity);
-       return ResponseEntity.status(HttpStatus.OK).body("ajout fait avec succés");
+       demandeRemorquageRepository.save(demandeRemorquage);
+       //consommateurService.saveOrUpdateConsommateur(entity);
+       return ResponseEntity.status(HttpStatus.OK).body(demandeRemorquage);
      }
      catch (Exception e) {
        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("erreur");
@@ -66,6 +66,35 @@ public class DemandeRemorquageController {
 
   }
 
+  @GetMapping("/getDemande/{idDemande}")
+  public ResponseEntity<Object> getDemande(@PathVariable Long idDemande) {
+    if(idDemande != null ) {
+      try{
+        DemandeRemorquage demandeRemorquage = demandeRemorquageRepository.findById(idDemande).get();
+        return ResponseEntity.status(HttpStatus.OK).body(demandeRemorquage);
+      }
+      catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+      }
+
+    }
+     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+  }
+  @GetMapping("/getRemorqeurFromDemande/{idDemande}")
+  public ResponseEntity<Object>  getRemorqeurFromDemande(@PathVariable Long idDemande) {
+    if(idDemande != null) {
+      try{
+        DemandeRemorquage demandeRemorquage = demandeRemorquageRepository.findById(idDemande).get();
+        Remorqueur remorqueur = demandeRemorquage.getRemorqueur();
+        return ResponseEntity.status(HttpStatus.OK).body(remorqueur);
+      }
+      catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+      }
+    }
+
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+  }
   @GetMapping("/getAll/{idRemorqeur}")
   //@PreAuthorize("hasRole('REMORQEUR')")
   public ResponseEntity< List<DemandeRemorquage> > getListeDemandes(@PathVariable Long idRemorqeur) {
@@ -74,7 +103,7 @@ public class DemandeRemorquageController {
       //
       List<DemandeRemorquage> liste = new ArrayList<>();
       for (DemandeRemorquage d:listeDemandeRemorquage ) {
-        if(d.getRemorqueur() == null || (d.getRemorqueur().getId() != idRemorqeur &&  d.isDeclined())) liste.add(d);
+        if(d.getRemorqueur() == null || (d.getRemorqueur().getId() != idRemorqeur &&  d.getIsDeclined())) liste.add(d);
       }
       return ResponseEntity.status(HttpStatus.OK).body(liste);
     }
@@ -94,7 +123,7 @@ public class DemandeRemorquageController {
 
      if(remorqueur.get() !=null  && demande.get() !=null   ) {
        demande.get().setRemorqueur(remorqueur.get());
-       demande.get().setDeclined(false);
+       demande.get().setIsDeclined(false);
        demandeRemorquageRepository.save(demande.get());
        return ResponseEntity.status(HttpStatus.OK).body(demande);
      }
@@ -109,7 +138,7 @@ public class DemandeRemorquageController {
     if(idDemande != null && isFinished != null) {
       try{
         Optional<DemandeRemorquage> demandeRemorquage = demandeRemorquageRepository.findById(idDemande);
-        demandeRemorquage.get().setFinished(isFinished);
+        demandeRemorquage.get().setIsFinished(isFinished);
         demandeRemorquageRepository.save(demandeRemorquage.get());
         return ResponseEntity.status(HttpStatus.OK).body(demandeRemorquage.get());
       }
@@ -125,7 +154,7 @@ public class DemandeRemorquageController {
     if(idDemande != null && isClientPickedUp != null) {
       try{
         Optional<DemandeRemorquage> demandeRemorquage = demandeRemorquageRepository.findById(idDemande);
-        demandeRemorquage.get().setClientPickedUp(isClientPickedUp);
+        demandeRemorquage.get().setIsClientPickedUp(isClientPickedUp);
         demandeRemorquageRepository.save(demandeRemorquage.get());
         return ResponseEntity.status(HttpStatus.OK).body(demandeRemorquage.get());
       }
@@ -151,7 +180,7 @@ public class DemandeRemorquageController {
           for (DemandeRemorquage d : liste) {
             if (d.getId() == idDemande) {
 
-              d.setDeclined(true);
+              d.setIsDeclined(true);
               d.setRemorqueur(remorqueur.get());
 
             }

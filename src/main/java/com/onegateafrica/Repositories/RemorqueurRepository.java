@@ -19,4 +19,6 @@ public interface RemorqueurRepository extends JpaRepository<Remorqueur,Long> {
   @Query("update Remorqueur u set u.isDisponible = :disponibility where u.id = :id")
   void updateDisponibility(@Param(value = "id") long id, @Param(value = "disponibility") boolean disponibility);
 
+  @Query(value = "select * FROM Remorqeur as r  where r.consommateur_id = :idConsommateur" , nativeQuery = true )
+  Optional<Remorqueur>  getUserAsRemorqeur(@Param(value="idConsommateur") long idConsommateur) ;
 }

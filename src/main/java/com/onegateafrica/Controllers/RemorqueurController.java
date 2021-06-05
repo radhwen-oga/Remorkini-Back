@@ -1,8 +1,6 @@
 package com.onegateafrica.Controllers;
 
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.onegateafrica.Controllers.utils.DataValidationUtils;
 import com.onegateafrica.Controllers.utils.ImageIO;
 import com.onegateafrica.Entities.*;
@@ -20,7 +18,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -51,6 +48,15 @@ public class RemorqueurController {
         this.consommateurService = consommateurService;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.roleRepository = roleRepository;
+    }
+    @GetMapping("/getConsommateurAsRemorqueur/{idConsommateur}")
+    public ResponseEntity<Object> getConsommateurAsRemorqueur(@PathVariable Long idConsommateur) {
+        if(idConsommateur!= null) {
+            Remorqueur remorqueur = remorqueurService.getConsommateurAsRemorqeur(idConsommateur).get();
+            return ResponseEntity.status(HttpStatus.OK).body(remorqueur);
+        }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
     }
 
     //ajouté par radhwen ticket 1612

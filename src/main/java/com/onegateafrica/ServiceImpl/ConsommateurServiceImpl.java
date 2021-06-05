@@ -61,4 +61,5 @@ public class ConsommateurServiceImpl implements ConsommateurService {
 	public Optional<Consommateur> getConsommateurByEmail(String Email) {
 		return consommateurRepository.findByEmail(Email);
 	}
+
 }

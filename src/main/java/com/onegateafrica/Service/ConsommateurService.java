@@ -22,4 +22,6 @@ public interface ConsommateurService {
 
 	 Optional<Consommateur> getConsommateurByEmail(String Email);
 
+
+
 }

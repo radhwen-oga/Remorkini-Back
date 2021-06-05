@@ -1,5 +1,6 @@
 package com.onegateafrica.Entities;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
@@ -18,8 +19,8 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode
 @NoArgsConstructor
 @Entity
-@Table(name = "remorqueur")
-public  class Remorqueur  {
+@Table(name = "remorqeur")
+public  class Remorqueur implements Serializable {
   @Id
   @GeneratedValue
   private Long id;
@@ -53,6 +54,7 @@ public  class Remorqueur  {
 
   @Column(name ="noteRemorqueurMoyenne")
   private double noteRemorqueurMoyenne;
+
 
   @OneToOne
   private Consommateur consommateur;

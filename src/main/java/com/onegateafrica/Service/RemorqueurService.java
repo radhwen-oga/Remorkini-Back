@@ -22,5 +22,7 @@ public interface RemorqueurService {
 
     void updateDisponibility( long id,  boolean disponibility);
 
+    Optional<Remorqueur> getConsommateurAsRemorqeur(Long idConsommateur);
+
 
 }
