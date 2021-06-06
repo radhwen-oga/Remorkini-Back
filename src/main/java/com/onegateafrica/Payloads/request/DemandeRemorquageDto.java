@@ -12,4 +12,8 @@ public class DemandeRemorquageDto {
 
   private String description ;
   private Long idConsommateur ;
+  private String marqueVoiture;
+  private String nbrePersonnes ;
+  private String typePanne ;
+
 }
