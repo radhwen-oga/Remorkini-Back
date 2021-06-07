@@ -46,7 +46,10 @@ public class DemandeRemorquageController {
        Consommateur entity = consommateur.get();
 
        demandeRemorquage.setConsommateur(entity);
-       demandeRemorquage.setDescription(demandeRemorquageDto.getDescription());
+       //demandeRemorquage.setDescription(demandeRemorquageDto.getDescription());
+       demandeRemorquage.setMarqueVoiture(demandeRemorquageDto.getMarqueVoiture());
+       demandeRemorquage.setNbrePersonnes(demandeRemorquageDto.getNbrePersonnes());
+       demandeRemorquage.setTypePanne(demandeRemorquageDto.getTypePanne());
 
        List<DemandeRemorquage> listeDemandeRemorquage = new ArrayList<>();
        listeDemandeRemorquage.add(demandeRemorquage);
