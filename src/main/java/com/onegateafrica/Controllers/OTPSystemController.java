@@ -127,13 +127,7 @@ public class OTPSystemController {
               List<String> roles =consommateur.getRoles().stream()
                       .map(item -> item.getRoleName().toString())
                       .collect(Collectors.toList());
-              String jwt = Jwts.builder()
-                      .setSubject((consommateur.getEmail()))
-                      .setIssuedAt(new Date())
-                      .setExpiration(new Date((new Date()).getTime() + jwtUtils.getJwtExpirationMs()))
-                      .signWith(jwtUtils.getKey())
-                      .claim("roles", consommateur.getRoles())
-                      .compact();
+              String jwt = jwtUtils.generateJwtToken(consommateur.getEmail(), consommateur.getRoles());
               return ResponseEntity.ok(new JwtResponse(jwt,consommateur.getId(),
                       consommateur.getUserName(),
                       consommateur.getEmail(),
