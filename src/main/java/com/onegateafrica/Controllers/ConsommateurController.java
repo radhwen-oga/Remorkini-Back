@@ -3,11 +3,14 @@ package com.onegateafrica.Controllers;
 import java.io.File;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 import com.onegateafrica.Payloads.request.PushTokenDto;
 
 import com.onegateafrica.Payloads.request.UpdateForm;
+import com.onegateafrica.Payloads.response.JwtResponse;
+import com.onegateafrica.Security.jwt.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -39,13 +42,14 @@ public class ConsommateurController {
 
 	private static String imageDirectory = System.getProperty("user.dir") + "/images/";
 	private final RoleRepository roleRepository;
+	private final JwtUtils jwtUtils;
 
 	@Autowired
-	public ConsommateurController(RoleRepository roleRepository,ConsommateurService consommateurService, BCryptPasswordEncoder bCryptPasswordEncoder) {
+	public ConsommateurController(RoleRepository roleRepository, ConsommateurService consommateurService, BCryptPasswordEncoder bCryptPasswordEncoder, JwtUtils jwtUtils) {
 		this.consommateurService = consommateurService;
 		this.bCryptPasswordEncoder = bCryptPasswordEncoder;
 		this.roleRepository=roleRepository;
-
+		this.jwtUtils = jwtUtils;
 	}
 	private void makeDirectoryIfNotExist(String imageDirectory) {
 		File directory = new File(imageDirectory);
@@ -58,7 +62,7 @@ public class ConsommateurController {
 
 
 	@PutMapping("/updateConsommateur")
-	public ResponseEntity<String> registerClient(@RequestBody UpdateForm body) {
+	public ResponseEntity<?> registerClient(@RequestBody UpdateForm body) {
 		if (DataValidationUtils.isValid(body.getPhoneNumber())) {
 			Consommateur consommateur = consommateurService.getConsommateur(body.getId()).get();
 			if (DataValidationUtils.isValid(body.getFirstName()) &&
@@ -93,8 +97,18 @@ public class ConsommateurController {
 					consommateur.setPhoneNumber(body.getPhoneNumber());
 				}
 
-				consommateurService.saveOrUpdateConsommateur(consommateur);
-				return ResponseEntity.status(HttpStatus.ACCEPTED).body("OK");
+				consommateur = consommateurService.saveOrUpdateConsommateur(consommateur);
+				List<String> roles =consommateur.getRoles().stream()
+						.map(item -> item.getRoleName().toString())
+						.collect(Collectors.toList());
+				String jwt = jwtUtils.generateJwtToken(consommateur.getEmail(), consommateur.getRoles());
+				return ResponseEntity.ok(new JwtResponse(jwt,consommateur.getId(),
+						consommateur.getUserName(),
+						consommateur.getEmail(),
+						roles,
+						consommateur.getPhoneNumber(),
+						consommateur.getFirstName(),
+						consommateur.getLastName()));
 
 			} else {
 				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("INVALID FIELDS");

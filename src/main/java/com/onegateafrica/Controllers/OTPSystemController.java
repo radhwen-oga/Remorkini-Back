@@ -51,7 +51,7 @@ public class OTPSystemController {
 
         if (phoneNumberInput != null) {
             Consommateur consommateur = consommateurService.getConsommateurByPhoneNumber(phoneNumberInput);
-            if (consommateur != null) {
+            if (consommateur == null) {
                 OTPSystem otpSystem = new OTPSystem();
                 otpSystem.setPhoneNumber(phoneNumberInput);
                 otpSystem.setOtp(String.valueOf(((int) (Math.random() * (10000 - 1000))) + 1000));

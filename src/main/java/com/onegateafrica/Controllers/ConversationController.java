@@ -21,7 +21,7 @@ import com.onegateafrica.Service.RemorqueurService;
 
 @CrossOrigin(origins = "*")
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api/chat")
 public class ConversationController {
     private final JwtUtils jwtUtils;
     private final ConsommateurService consommateurService;
@@ -37,10 +37,10 @@ public class ConversationController {
 
 
     @PostMapping("/sendMessage")
-    public ResponseEntity<?> AuthenticatedUserRealm(@RequestHeader("accept-language") String language,
+    public ResponseEntity<?> AuthenticatedUserRealm(@RequestHeader("Authorization") String auth,
                                                     @RequestBody LoginForm loginRequest) {
 
-
+        System.out.println(auth.split("Bearer ")[0]);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("NOT FOUND");
     }
