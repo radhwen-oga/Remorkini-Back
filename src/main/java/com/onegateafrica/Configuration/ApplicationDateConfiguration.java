@@ -62,7 +62,7 @@ public class ApplicationDateConfiguration {
             //System.out.println("resultat de comparaison "+todayWithoutTime.compareTo(dateFinDeSemaineWithoutTime));
 
             //si on a atteint la fin de semaine => reinitialiser la semaine
-            
+
             if(todayWithoutTime.compareTo(dateFinDeSemaineWithoutTime)==0){
                 Instant newDateFinDeSemaine = now.plus(Duration.ofDays(7)) ;
 
