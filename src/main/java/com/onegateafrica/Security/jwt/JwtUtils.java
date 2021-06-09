@@ -1,9 +1,11 @@
 package com.onegateafrica.Security.jwt;
 
 import java.util.Date;
+import java.util.Set;
 
 import javax.crypto.SecretKey;
 
+import com.onegateafrica.Entities.Role;
 import com.onegateafrica.ServiceImpl.UserDetailsImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,12 +25,12 @@ public class JwtUtils {
 
 	@Value("${bezkoder.app.jwtExpirationMs}")
 	private int jwtExpirationMs;
-	private SecretKey key ;
+	private static SecretKey key = Keys.secretKeyFor(SignatureAlgorithm.HS512); ;
 
 	public String generateJwtToken(Authentication authentication) {
 
 		UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
-		key = Keys.secretKeyFor(SignatureAlgorithm.HS512); //or HS384 or HS512
+		 //or HS384 or HS512
 		return Jwts.builder()
 				.setSubject((userPrincipal.getEmail()))
 				.setIssuedAt(new Date())
@@ -37,6 +39,19 @@ public class JwtUtils {
 				.claim("roles", userPrincipal.getAuthorities())
 				.compact();
 	}
+
+	public String generateJwtToken(String email, Set<Role> roles) {
+
+		//key = Keys.secretKeyFor(SignatureAlgorithm.HS512); //or HS384 or HS512
+		return Jwts.builder()
+				.setSubject(email)
+				.setIssuedAt(new Date())
+				.setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
+				.signWith(key)
+				.claim("roles",roles)
+				.compact();
+	}
+
 
 	public String getUserNameFromJwtToken(String token) {
 		//  key = Keys.secretKeyFor(SignatureAlgorithm.HS256); //or HS384 or HS512
@@ -63,11 +78,5 @@ public class JwtUtils {
 		}
 
 		return false;
-	}
-	public SecretKey getKey(){
-		return this.key;
-	}
-	public int getJwtExpirationMs(){
-		return this.jwtExpirationMs;
 	}
 }
