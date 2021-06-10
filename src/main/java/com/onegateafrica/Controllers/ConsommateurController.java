@@ -208,6 +208,33 @@ public class ConsommateurController {
 			return ImageIO.getProfilImagePlaceholder();
 		}
 	}
+	@GetMapping(value = "/public/pictureByID", produces = MediaType.IMAGE_PNG_VALUE)
+	public @ResponseBody
+	byte[] getUserPictureById(
+			@RequestParam("id") Long id
+	) {
+
+		/**
+		 * http://localhost:8080/api/cinPicture?cinNumber=[cinNumber]
+		 */
+			System.out.println(id);
+			Optional<Consommateur> consommateur = consommateurService.getConsommateur(id);
+			if (consommateur.isPresent()) {
+				String imageName = consommateur.get().getUserPicture();
+				if (consommateur.get() == null || imageName == null || imageName.isBlank()) {
+					return ImageIO.getProfilImagePlaceholder();
+				} else {
+					try {
+						byte[] image = ImageIO.getImage(imageName);
+						return image;
+					} catch (Exception ex) {
+						ex.printStackTrace();
+						return ImageIO.getProfilImagePlaceholder();
+					}
+				}
+			}
+		return ImageIO.getProfilImagePlaceholder();
+	}
 
 
 	@GetMapping("/getConsommateurByPhoneNumber/{PhoneNumber}")
