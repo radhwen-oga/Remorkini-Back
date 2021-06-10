@@ -58,7 +58,9 @@ public class JwtUtils {
 
 		return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getSubject();
 	}
-
+	public Jws<Claims> parseJwtToken(String authToken){
+		return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(authToken);
+	}
 	public boolean validateJwtToken(String authToken) {
 		 //SecretKey key = Keys.secretKeyFor(SignatureAlgorithm.HS256); //or HS384 or HS512
 

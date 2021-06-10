@@ -3,12 +3,11 @@ package com.onegateafrica.Entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import com.sun.istack.NotNull;
+import lombok.*;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -20,13 +19,18 @@ import java.util.Set;
 public class Conversation {
 
     @Id
+    @GeneratedValue (strategy = GenerationType.IDENTITY)
     private Long id;
-
+    @NotNull
     @OneToOne
     private Consommateur consommateur;
-
+    @NotNull
     @OneToOne
-    private Remorqueur remorqueur;
-    @OneToMany(fetch= FetchType.EAGER)
+    private Consommateur remorqueur;
+
+    private Date lastActivity;
+
+    @JsonIgnore
+    @OneToMany(fetch= FetchType.LAZY, mappedBy = "conversation")
     private List<Message> messages;
 }
