@@ -38,6 +38,7 @@ public class ReclamationController {
             Remorqueur remorqueur ;
 
             try {
+                //1)-------- ajouter et affecter la reclamation au remorqeur en question
                 remorqueur = remorqueurService.getRemorqueur(reclamationDto.getIdRemorqeur()).get();
                 Reclamation reclamation = new Reclamation() ;
                 if(!reclamationDto.getDescription().isEmpty()) reclamation.setDescription(reclamationDto.getDescription());
@@ -48,7 +49,7 @@ public class ReclamationController {
 
                 remorqueur.getListeReclamations().add(reclamation);
 
-                //remorqueurService.saveOrUpdateRemorqueur(remorqueur);
+                remorqueurService.saveOrUpdateRemorqueur(remorqueur);
 
                 //2) ------calculate the week of today's date
                 IntervalWeekUtils currentIntervalWeek = reclamationService.calculateWeekFromToday(today);
@@ -65,9 +66,9 @@ public class ReclamationController {
                 ///-----------check if the number of recla in the week >=10 && le second bann then bann =  10 jours
                 ///-----------check if the number of recla in the week >=10 && le troisiéme bann then bann =  10 jours
 
-                reclamationService.traiterBann(reclamationDto.getIdRemorqeur(),searchedListOfReclmations);
+               String message = reclamationService.traiterBann(reclamationDto.getIdRemorqeur(),searchedListOfReclmations);
 
-                return ResponseEntity.status(HttpStatus.OK).body(searchedListOfReclmations);
+                return ResponseEntity.status(HttpStatus.OK).body(message);
 
             }
             catch (Exception e){

@@ -195,7 +195,7 @@ public class ReclamationServiceImpl implements ReclamationService {
     }
 
     @Override
-    public void traiterBann(Long idRemorqueur, List<Reclamation> listeReclamationOfRemorqueurInWeek) {
+    public String traiterBann(Long idRemorqueur, List<Reclamation> listeReclamationOfRemorqueurInWeek) {
         List<Bannissement> listeBannOfRemorquer = bannissementService.getBannissementOfRemorqeur(idRemorqueur).get();
 
         if( listeReclamationOfRemorqueurInWeek !=null && listeReclamationOfRemorqueurInWeek.size()>=5 ) {
@@ -221,7 +221,7 @@ public class ReclamationServiceImpl implements ReclamationService {
                 bannissement.setRemorqueur(remorqueur);
                 remorqueur.getListeBannissements().add(bannissement);
                 remorqueurService.saveOrUpdateRemorqueur(remorqueur);
-                return;
+                return "le remorqeur avec l'id "+idRemorqueur+" est banni de "+nbreJoursBann +" jours";
             }
 
             //la deuxiéme fois => donc il a  avant un seul bann
@@ -239,7 +239,7 @@ public class ReclamationServiceImpl implements ReclamationService {
                 bannissement.setRemorqueur(remorqueur);
                 remorqueur.getListeBannissements().add(bannissement);
                 remorqueurService.saveOrUpdateRemorqueur(remorqueur);
-                return;
+                return "le remorqeur avec l'id "+idRemorqueur+" est banni de "+nbreJoursBann +" jours";
             }
 
             //la troisiéme fois => donc il a  avant deux bann
@@ -258,9 +258,11 @@ public class ReclamationServiceImpl implements ReclamationService {
                 bannissement.setRemorqueur(remorqueur);
                 remorqueur.getListeBannissements().add(bannissement);
                 remorqueurService.saveOrUpdateRemorqueur(remorqueur);
-                return;
+                return "le remorqeur avec l'id "+idRemorqueur+" est banni de "+nbreJoursBann +" jours";
             }
         }
+
+        return "le remorqeur avec l'id "+idRemorqueur+" est n'est pas banni  ";
     }
 
 }
