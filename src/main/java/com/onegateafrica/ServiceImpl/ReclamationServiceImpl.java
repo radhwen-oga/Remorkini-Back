@@ -1,9 +1,13 @@
 package com.onegateafrica.ServiceImpl;
 
 import com.onegateafrica.Controllers.utils.IntervalWeekUtils;
+import com.onegateafrica.Entities.Bannissement;
 import com.onegateafrica.Entities.Reclamation;
+import com.onegateafrica.Entities.Remorqueur;
 import com.onegateafrica.Repositories.ReclamationRepository;
+import com.onegateafrica.Service.BannissementService;
 import com.onegateafrica.Service.ReclamationService;
+import com.onegateafrica.Service.RemorqueurService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,10 +24,14 @@ import java.util.Optional;
 public class ReclamationServiceImpl implements ReclamationService {
 
     private final ReclamationRepository reclamationRepository ;
+    private final BannissementService bannissementService ;
+    private final RemorqueurService remorqueurService ;
 
     @Autowired
-    public ReclamationServiceImpl(ReclamationRepository reclamationRepository) {
+    public ReclamationServiceImpl(ReclamationRepository reclamationRepository, BannissementService bannissementService, RemorqueurService remorqueurService) {
         this.reclamationRepository = reclamationRepository;
+        this.bannissementService = bannissementService;
+        this.remorqueurService = remorqueurService;
     }
 
     @Override
@@ -184,6 +192,75 @@ public class ReclamationServiceImpl implements ReclamationService {
         }
 
         return intervalWeekUtils;
+    }
+
+    @Override
+    public void traiterBann(Long idRemorqueur, List<Reclamation> listeReclamationOfRemorqueurInWeek) {
+        List<Bannissement> listeBannOfRemorquer = bannissementService.getBannissementOfRemorqeur(idRemorqueur).get();
+
+        if( listeReclamationOfRemorqueurInWeek !=null && listeReclamationOfRemorqueurInWeek.size()>=5 ) {
+          Bannissement bannissement = new Bannissement();
+          Date dateDebutBann ;
+          Date dateFinBann ;
+          long nbreJoursBann ;
+          Instant today = Instant.now();
+            Remorqueur remorqueur ;
+
+            //la premiére fois => donc il n'a pas avant un bann
+            if(listeBannOfRemorquer.size()==0) {
+                //1)------- définir la date debut et date fin de bann
+                nbreJoursBann = 3;
+                bannissement.setNbrJoursBann(nbreJoursBann);
+                dateDebutBann = Date.from(today);
+                bannissement.setDateDebutBann(dateDebutBann);
+                dateFinBann = Date.from(today.plus(Duration.ofDays(nbreJoursBann)));
+                bannissement.setDateFinBann(dateFinBann);
+
+                //2)-------- affecter le bann au remorqeur
+                remorqueur = remorqueurService.getRemorqueur(idRemorqueur).get();
+                bannissement.setRemorqueur(remorqueur);
+                remorqueur.getListeBannissements().add(bannissement);
+                remorqueurService.saveOrUpdateRemorqueur(remorqueur);
+                return;
+            }
+
+            //la deuxiéme fois => donc il a  avant un seul bann
+            if(listeBannOfRemorquer.size()==1) {
+                //1)------- définir la date debut et date fin de bann
+                nbreJoursBann = 10;
+                bannissement.setNbrJoursBann(nbreJoursBann);
+                dateDebutBann = Date.from(today);
+                bannissement.setDateDebutBann(dateDebutBann);
+                dateFinBann = Date.from(today.plus(Duration.ofDays(nbreJoursBann)));
+                bannissement.setDateFinBann(dateFinBann);
+
+                //2)-------- affecter le bann au remorqeur
+                remorqueur = remorqueurService.getRemorqueur(idRemorqueur).get();
+                bannissement.setRemorqueur(remorqueur);
+                remorqueur.getListeBannissements().add(bannissement);
+                remorqueurService.saveOrUpdateRemorqueur(remorqueur);
+                return;
+            }
+
+            //la troisiéme fois => donc il a  avant deux bann
+            //a verifier si toujours aprés 3 bann on donne toujours un bann de 30 jours
+            if(listeBannOfRemorquer.size()>=2) {
+                //1)------- définir la date debut et date fin de bann
+                nbreJoursBann = 30;
+                bannissement.setNbrJoursBann(nbreJoursBann);
+                dateDebutBann = Date.from(today);
+                bannissement.setDateDebutBann(dateDebutBann);
+                dateFinBann = Date.from(today.plus(Duration.ofDays(nbreJoursBann)));
+                bannissement.setDateFinBann(dateFinBann);
+
+                //2)-------- affecter le bann au remorqeur
+                remorqueur = remorqueurService.getRemorqueur(idRemorqueur).get();
+                bannissement.setRemorqueur(remorqueur);
+                remorqueur.getListeBannissements().add(bannissement);
+                remorqueurService.saveOrUpdateRemorqueur(remorqueur);
+                return;
+            }
+        }
     }
 
 }

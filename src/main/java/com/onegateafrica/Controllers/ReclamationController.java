@@ -4,7 +4,7 @@ import com.onegateafrica.Controllers.utils.IntervalWeekUtils;
 import com.onegateafrica.Entities.Reclamation;
 import com.onegateafrica.Entities.Remorqueur;
 import com.onegateafrica.Payloads.request.ReclamationDto;
-import com.onegateafrica.Payloads.request.SemaineIntervalleDto;
+import com.onegateafrica.Service.BannissementService;
 import com.onegateafrica.Service.ReclamationService;
 import com.onegateafrica.Service.RemorqueurService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,10 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.text.SimpleDateFormat;
-import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -26,11 +23,13 @@ public class ReclamationController {
 
     private final ReclamationService reclamationService ;
     private final RemorqueurService remorqueurService ;
+    private final BannissementService bannissementService ;
 
     @Autowired
-    public ReclamationController(ReclamationService reclamationService, RemorqueurService remorqueurService) {
+    public ReclamationController(ReclamationService reclamationService, RemorqueurService remorqueurService, BannissementService bannissementService) {
         this.reclamationService = reclamationService;
         this.remorqueurService = remorqueurService;
+        this.bannissementService = bannissementService;
     }
 
     @PostMapping("/ajouterReclamation")
@@ -61,6 +60,12 @@ public class ReclamationController {
                 System.out.println(allReclamationsList.size());
                List<Reclamation> searchedListOfReclmations=  reclamationService.getReclamationsOfWeek(allReclamationsList,currentIntervalWeek.getLeftDateIntervall(),currentIntervalWeek.getRightDateIntervall());
 
+               //4)----traiter la possibilité d'un bann
+                // ---------- check if the number of recla in the week >= 5 && le premier bann then bann = 3 jours
+                ///-----------check if the number of recla in the week >=10 && le second bann then bann =  10 jours
+                ///-----------check if the number of recla in the week >=10 && le troisiéme bann then bann =  10 jours
+
+                reclamationService.traiterBann(reclamationDto.getIdRemorqeur(),searchedListOfReclmations);
 
                 return ResponseEntity.status(HttpStatus.OK).body(searchedListOfReclmations);
 

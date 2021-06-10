@@ -22,4 +22,5 @@ public interface ReclamationService {
     Optional<List<Reclamation>> getReclamationsOfRemorqeur( Long idRemorqueur) ;
     List<Reclamation> getReclamationsOfWeek(List<Reclamation> listeReclamationOfRemorqueur , String leftWeekIntervall , String rightWeekIntervall) throws ParseException;
     IntervalWeekUtils calculateWeekFromToday(Instant today );
+    void traiterBann(Long idRemorqueur ,List<Reclamation> listeReclamationOfRemorqueurInWeek);
 }
