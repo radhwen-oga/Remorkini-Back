@@ -2,6 +2,7 @@ package com.onegateafrica.Repositories;
 
 import java.util.Optional;
 
+import com.onegateafrica.Entities.Consommateur;
 import com.onegateafrica.Entities.Remorqueur;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
