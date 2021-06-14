@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.util.Date;
 
 @Data
@@ -29,7 +30,7 @@ public class Reclamation {
     private ETypeReclamation typeReclamation ;
 
     @Column(name="dateajout")
-    private Date dateAjout ;
+    private Timestamp dateAjout ;
 
     @JsonIgnore
     @ManyToOne

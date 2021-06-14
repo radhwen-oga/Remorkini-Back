@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
@@ -45,7 +46,8 @@ public class ReclamationController {
                 reclamation.setRemorqueur(remorqueur);
 
                 Instant today = Instant.now();
-                reclamation.setDateAjout(Date.from(today));
+
+                reclamation.setDateAjout( Timestamp.from(today));
 
                 remorqueur.getListeReclamations().add(reclamation);
 

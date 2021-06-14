@@ -11,6 +11,8 @@ import com.onegateafrica.Service.RemorqueurService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
@@ -200,8 +202,8 @@ public class ReclamationServiceImpl implements ReclamationService {
 
         if( listeReclamationOfRemorqueurInWeek !=null && listeReclamationOfRemorqueurInWeek.size()>=5 ) {
           Bannissement bannissement = new Bannissement();
-          Date dateDebutBann ;
-          Date dateFinBann ;
+          Timestamp dateDebutBann ;
+          Timestamp dateFinBann ;
           long nbreJoursBann ;
           Instant today = Instant.now();
             Remorqueur remorqueur ;
@@ -211,10 +213,10 @@ public class ReclamationServiceImpl implements ReclamationService {
                 //1)------- définir la date debut et date fin de bann
                 nbreJoursBann = 3;
                 bannissement.setNbrJoursBann(nbreJoursBann);
-                dateDebutBann = Date.from(today);
-                bannissement.setDateDebutBann(dateDebutBann);
-                dateFinBann = Date.from(today.plus(Duration.ofDays(nbreJoursBann)));
-                bannissement.setDateFinBann(dateFinBann);
+                dateDebutBann = Timestamp.from(today);
+                bannissement.setDateDebutBann( dateDebutBann);
+                dateFinBann = Timestamp.from(today.plus(Duration.ofDays(nbreJoursBann)));
+                bannissement.setDateFinBann(( dateFinBann));
 
                 //2)-------- affecter le bann au remorqeur
                 remorqueur = remorqueurService.getRemorqueur(idRemorqueur).get();
@@ -229,10 +231,10 @@ public class ReclamationServiceImpl implements ReclamationService {
                 //1)------- définir la date debut et date fin de bann
                 nbreJoursBann = 10;
                 bannissement.setNbrJoursBann(nbreJoursBann);
-                dateDebutBann = Date.from(today);
-                bannissement.setDateDebutBann(dateDebutBann);
-                dateFinBann = Date.from(today.plus(Duration.ofDays(nbreJoursBann)));
-                bannissement.setDateFinBann(dateFinBann);
+                dateDebutBann = Timestamp.from(today);
+                bannissement.setDateDebutBann(( dateDebutBann));
+                dateFinBann = Timestamp.from(today.plus(Duration.ofDays(nbreJoursBann)));
+                bannissement.setDateFinBann((dateFinBann));
 
                 //2)-------- affecter le bann au remorqeur
                 remorqueur = remorqueurService.getRemorqueur(idRemorqueur).get();
@@ -248,10 +250,10 @@ public class ReclamationServiceImpl implements ReclamationService {
                 //1)------- définir la date debut et date fin de bann
                 nbreJoursBann = 30;
                 bannissement.setNbrJoursBann(nbreJoursBann);
-                dateDebutBann = Date.from(today);
-                bannissement.setDateDebutBann(dateDebutBann);
-                dateFinBann = Date.from(today.plus(Duration.ofDays(nbreJoursBann)));
-                bannissement.setDateFinBann(dateFinBann);
+                dateDebutBann = Timestamp.from(today);
+                bannissement.setDateDebutBann( dateDebutBann);
+                dateFinBann = Timestamp.from(today.plus(Duration.ofDays(nbreJoursBann)));
+                bannissement.setDateFinBann( dateFinBann);
 
                 //2)-------- affecter le bann au remorqeur
                 remorqueur = remorqueurService.getRemorqueur(idRemorqueur).get();

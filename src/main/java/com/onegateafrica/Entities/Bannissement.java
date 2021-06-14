@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.util.Date;
 
 @Data
@@ -25,10 +26,10 @@ public class Bannissement {
     private long nbrJoursBann ;
 
     @Column(name = "datedebutbann")
-    private Date dateDebutBann ;
+    private Timestamp dateDebutBann ;
 
     @Column(name = "datefinbann")
-    private Date dateFinBann ;
+    private Timestamp dateFinBann ;
 
     @JsonIgnore
     @ManyToOne
