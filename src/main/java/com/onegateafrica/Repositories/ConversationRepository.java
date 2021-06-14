@@ -14,9 +14,11 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
 
 
 
-	@Query(value = "SELECT * FROM Conversation WHERE consommateur_id = :consommateurId AND remorqueur_id = :remorqueurId", nativeQuery = true)
-	Optional<Conversation> findConversation(@Param(value="consommateurId") Long consommateurId, @Param(value="remorqueurId") Long remorqueurId);
-	@Query(value = "SELECT * FROM Conversation WHERE consommateur_id = :consommateurId OR remorqueur_id = :consommateurId", nativeQuery = true)
+	@Query(value = "SELECT * FROM Conversation WHERE (consommateur1_id = :consommateur1Id AND consommateur2_id = :consommateur2Id) " +
+			"OR (consommateur2_id = :consommateur1Id AND consommateur1_id = :consommateur2Id)" , nativeQuery = true)
+
+	Optional<Conversation> findConversation(@Param(value="consommateur1Id") Long consommateur1Id, @Param(value="consommateur2Id") Long consommateur2Id);
+	@Query(value = "SELECT * FROM Conversation WHERE consommateur1_id = :consommateurId OR consommateur2_id = :consommateurId", nativeQuery = true)
 	Optional<List<Conversation>> findAllConversations(@Param(value="consommateurId") Long consommateurId);
 }
 

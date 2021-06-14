@@ -10,8 +10,6 @@ import java.util.Date;
 @AllArgsConstructor
 public class Message {
 
-    private String role;
-
     private Long receiverId;
 
     private String message;
