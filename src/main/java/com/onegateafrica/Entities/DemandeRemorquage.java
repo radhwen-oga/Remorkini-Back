@@ -48,6 +48,9 @@ public class DemandeRemorquage implements Serializable {
   private String nbrePersonnes ;
   private String typePanne ;
 
+  @Column(name = "canceledbyclient")
+  private Boolean isCanceledByClient ;
+
 
 
 
