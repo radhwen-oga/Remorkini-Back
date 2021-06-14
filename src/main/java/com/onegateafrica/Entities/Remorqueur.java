@@ -75,4 +75,11 @@ public  class Remorqueur implements Serializable {
   @JsonIgnore
   @OneToMany(fetch = FetchType.LAZY, mappedBy = "remorqueur",cascade = CascadeType.ALL)
   private List<DemandeRemorquage> listeDemandesRemorquage ;
+
+
+  @OneToMany(fetch =FetchType.LAZY ,mappedBy = "remorqueur",cascade = CascadeType.ALL)
+  private List<Reclamation> listeReclamations ;
+
+  @OneToMany(fetch =FetchType.LAZY ,mappedBy = "remorqueur",cascade = CascadeType.ALL)
+  private List<Bannissement> listeBannissements ;
 }

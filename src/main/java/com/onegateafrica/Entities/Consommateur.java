@@ -43,4 +43,6 @@ public class Consommateur extends User {
     @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "consommateur",cascade = CascadeType.ALL  )
     private List<DemandeRemorquage> listeDemandesRemorquage ;
+
+
 }
