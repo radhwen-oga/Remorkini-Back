@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public interface ConversationService {
 
-    Optional<Conversation> findConversationByConIdAndRemId(Long consommateurId, Long remorqueurId);
+    Optional<Conversation> findConversationByIds(Long consommateur1Id, Long consommateur2Id);
 
     Conversation save(Conversation conversation);
 
