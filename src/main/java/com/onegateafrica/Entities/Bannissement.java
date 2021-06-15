@@ -31,6 +31,9 @@ public class Bannissement {
     @Column(name = "datefinbann")
     private Timestamp dateFinBann ;
 
+    @Column(name="ispassed")
+    private Boolean isCompleted =false ;
+
     @JsonIgnore
     @ManyToOne
     private Remorqueur remorqueur ;

@@ -74,7 +74,7 @@ public class ReclamationServiceImpl implements ReclamationService {
 
         for( Reclamation r : listeReclamationOfRemorqueur) {
             Date  dateReclmationWithoutTime = sdf.parse(sdf.format(r.getDateAjout()));
-            if(dateReclmationWithoutTime.compareTo(parsedLeftDateIntervall) >0 && dateReclmationWithoutTime.compareTo(parsedRightDateIntervall) <0){
+            if(dateReclmationWithoutTime.compareTo(parsedLeftDateIntervall) >=0 && dateReclmationWithoutTime.compareTo(parsedRightDateIntervall) <=0){
                 searchedList.add(r);
             }
         }
@@ -201,6 +201,7 @@ public class ReclamationServiceImpl implements ReclamationService {
         List<Bannissement> listeBannOfRemorquer = bannissementService.getBannissementOfRemorqeur(idRemorqueur).get();
 
         if( listeReclamationOfRemorqueurInWeek !=null && listeReclamationOfRemorqueurInWeek.size()>=5 ) {
+
           Bannissement bannissement = new Bannissement();
           Timestamp dateDebutBann ;
           Timestamp dateFinBann ;
@@ -222,6 +223,9 @@ public class ReclamationServiceImpl implements ReclamationService {
                 remorqueur = remorqueurService.getRemorqueur(idRemorqueur).get();
                 bannissement.setRemorqueur(remorqueur);
                 remorqueur.getListeBannissements().add(bannissement);
+                //3)------------- set isBanned du remorqueur à true
+                remorqueur.setIsBanned(true);
+
                 remorqueurService.saveOrUpdateRemorqueur(remorqueur);
                 return "le remorqeur avec l'id "+idRemorqueur+" est banni de "+nbreJoursBann +" jours";
             }
@@ -240,6 +244,9 @@ public class ReclamationServiceImpl implements ReclamationService {
                 remorqueur = remorqueurService.getRemorqueur(idRemorqueur).get();
                 bannissement.setRemorqueur(remorqueur);
                 remorqueur.getListeBannissements().add(bannissement);
+                //3)------------- set isBanned du remorqueur à true
+                remorqueur.setIsBanned(true);
+
                 remorqueurService.saveOrUpdateRemorqueur(remorqueur);
                 return "le remorqeur avec l'id "+idRemorqueur+" est banni de "+nbreJoursBann +" jours";
             }
@@ -259,6 +266,9 @@ public class ReclamationServiceImpl implements ReclamationService {
                 remorqueur = remorqueurService.getRemorqueur(idRemorqueur).get();
                 bannissement.setRemorqueur(remorqueur);
                 remorqueur.getListeBannissements().add(bannissement);
+                //3)------------- set isBanned du remorqueur à true
+                remorqueur.setIsBanned(true);
+
                 remorqueurService.saveOrUpdateRemorqueur(remorqueur);
                 return "le remorqeur avec l'id "+idRemorqueur+" est banni de "+nbreJoursBann +" jours";
             }

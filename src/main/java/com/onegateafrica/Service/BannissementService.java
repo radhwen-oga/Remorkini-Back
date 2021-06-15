@@ -2,6 +2,7 @@ package com.onegateafrica.Service;
 
 import com.onegateafrica.Entities.Bannissement;
 import com.onegateafrica.Entities.Reclamation;
+import com.onegateafrica.Payloads.response.BannResponse;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
@@ -17,6 +18,7 @@ public interface BannissementService {
     void deleteBannissement(Long id);
 
     Optional<List<Bannissement>> getBannissementOfRemorqeur( long idRemorqueur ) ;
+    BannResponse verifierBann(Long idRemorqeur );
 
 
 }

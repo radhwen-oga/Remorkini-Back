@@ -5,7 +5,9 @@ import com.onegateafrica.Controllers.utils.DataValidationUtils;
 import com.onegateafrica.Controllers.utils.ImageIO;
 import com.onegateafrica.Entities.*;
 import com.onegateafrica.Payloads.request.SignUpRemorqueur;
+import com.onegateafrica.Payloads.response.BannResponse;
 import com.onegateafrica.Repositories.RoleRepository;
+import com.onegateafrica.Service.BannissementService;
 import com.onegateafrica.Service.ConsommateurService;
 import com.onegateafrica.Service.RemorqueurService;
 import org.slf4j.Logger;
@@ -38,16 +40,18 @@ public class RemorqueurController {
     private final ConsommateurService consommateurService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final RoleRepository roleRepository;
+    private final BannissementService bannissementService ;
     Logger logger = LoggerFactory.getLogger(RemorqueurController.class);
 
 
     @Autowired
     public RemorqueurController(RoleRepository roleRepository, RemorqueurService remorqueurService, ConsommateurService consommateurService,
-                                BCryptPasswordEncoder bCryptPasswordEncoder) {
+                                BCryptPasswordEncoder bCryptPasswordEncoder, BannissementService bannissementService) {
         this.remorqueurService = remorqueurService;
         this.consommateurService = consommateurService;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.roleRepository = roleRepository;
+        this.bannissementService = bannissementService;
     }
     @GetMapping("/getConsommateurAsRemorqueur/{idConsommateur}")
     public ResponseEntity<Object> getConsommateurAsRemorqueur(@PathVariable Long idConsommateur) {
@@ -236,6 +240,23 @@ public class RemorqueurController {
     @DeleteMapping("/deleteRemorqueurLibre/{id}")
     public void deleteRemorqueurLibre(@PathVariable Long id) {
         remorqueurService.deleteRemorqueur(id);
+
+    }
+
+    @GetMapping("/verifierBann/{idRemorqueur}")
+    public ResponseEntity<Object> verfierBannOfRemorqueur (@PathVariable Long idRemorqueur) {
+        if(idRemorqueur != null ){
+            try {
+
+              BannResponse bannResponse =  bannissementService.verifierBann(idRemorqueur);
+
+                return ResponseEntity.status(HttpStatus.OK).body(bannResponse);
+            }
+            catch (Exception e){
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("erreur ");
+            }
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("erreur ");
 
     }
 
