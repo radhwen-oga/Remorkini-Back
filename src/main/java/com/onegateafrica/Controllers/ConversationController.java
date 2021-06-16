@@ -45,50 +45,33 @@ public class ConversationController {
         if (message.getMessage() == null || message.getMessage().length() < 0) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("invalid message");
         }
-        if (message.getRole() == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("invalid role");
-        }
         String email = String.valueOf(jwtUtils.parseJwtToken(auth.substring(7)).getBody().get("sub"));
-        Optional<Consommateur> consommateur;
-        Optional<Consommateur> remorqueur;
+        Optional<Consommateur> consommateur1;
+        Optional<Consommateur> consommateur2;
         Boolean isConsommateur = true;
-        if (message.getRole().equals("consommateur")) {
-            consommateur = consommateurService.getConsommateurByEmail(email);
-            if (consommateur.get().getId() != message.getReceiverId()) {
-                remorqueur = consommateurService.getConsommateur(message.getReceiverId());
-            } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cannot Send message to yourself");
+
+            consommateur1 = consommateurService.getConsommateurByEmail(email);
+            consommateur2 = consommateurService.getConsommateur(message.getReceiverId());
+            if(consommateur1.isEmpty() || consommateur2.isEmpty()){
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("invalid destination");
             }
-        } else if (message.getRole().equals("remorqueur")) {
-            remorqueur = consommateurService.getConsommateurByEmail(email);
-            if (remorqueur.get().getId() != message.getReceiverId()) {
-                consommateur = consommateurService.getConsommateur(message.getReceiverId());
-            } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cannot Send message to yourself");
+            if (consommateur1.get().getId() == consommateur2.get().getId()){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("cannot send message to yourself");
             }
 
-            isConsommateur = false;
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid role");
-        }
-        if (consommateur.isPresent() && remorqueur.isPresent()) {
-            Optional<Conversation> conversation = conversationService.findConversationByConIdAndRemId(consommateur.get().getId(), remorqueur.get().getId());
+            Optional<Conversation> conversation = conversationService.findConversationByIds(consommateur1.get().getId(), consommateur2.get().getId());
             if (conversation.isEmpty()) {
                 Conversation conversation1 = new Conversation();
-                conversation1.setConsommateur(consommateur.get());
-                conversation1.setRemorqueur(remorqueur.get());
+                conversation1.setConsommateur1(consommateur1.get());
+                conversation1.setConsommateur2(consommateur2.get());
                 conversationService.save(conversation1);
-                conversation = conversationService.findConversationByConIdAndRemId(consommateur.get().getId(), remorqueur.get().getId());
+                conversation = conversationService.findConversationByIds(consommateur1.get().getId(), consommateur2.get().getId());
 
             }
             Message newMessage = new Message();
             newMessage.setMessage(message.getMessage());
             newMessage.setTimestamp(new Date());
-            if (isConsommateur) {
-                newMessage.setSenderId(consommateur.get().getId());
-            } else {
-                newMessage.setSenderId(remorqueur.get().getId());
-            }
+            newMessage.setSenderId(consommateur1.get().getId());
             newMessage.setConversation(conversation.get());
             newMessage.setSeen(false);
             newMessage.setReceived(false);
@@ -98,8 +81,6 @@ public class ConversationController {
             conversationUpdate.setLastActivity(date);
             conversationService.save(conversationUpdate);
             return ResponseEntity.status(HttpStatus.OK).body(date);
-        }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("NOT FOUND");
     }
 
     @GetMapping("/getAllConversations")
@@ -133,10 +114,10 @@ public class ConversationController {
             System.out.println("user is present");
             Optional<Conversation> conversation = conversationService.findById(id);
             if (conversation.isPresent()) {
-                System.out.println(user.get().getId() + " " + conversation.get().getConsommateur().getId()
-                        + " " + conversation.get().getRemorqueur().getId());
-                if (user.get().getId() == conversation.get().getConsommateur().getId() ||
-                        user.get().getId() == conversation.get().getRemorqueur().getId()) {
+                System.out.println(user.get().getId() + " " + conversation.get().getConsommateur1().getId()
+                        + " " + conversation.get().getConsommateur2().getId());
+                if (user.get().getId() == conversation.get().getConsommateur1().getId() ||
+                        user.get().getId() == conversation.get().getConsommateur2().getId()) {
                     Optional<List<Message>> messages = messageService.filterMessage(id);
                     if (messages.isPresent()) {
                         List<Message> messages1 = messages.get();

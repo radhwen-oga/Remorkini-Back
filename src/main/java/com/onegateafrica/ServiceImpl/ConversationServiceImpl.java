@@ -25,8 +25,8 @@ public class ConversationServiceImpl implements ConversationService {
 	}
 
 	@Override
-	public Optional<Conversation> findConversationByConIdAndRemId(Long consommateurId, Long remorqueurId) {
-		return this.conversationRepository.findConversation(consommateurId,remorqueurId);
+	public Optional<Conversation> findConversationByIds(Long consommateur1Id, Long consommateur2Id) {
+		return this.conversationRepository.findConversation(consommateur1Id,consommateur2Id);
 	}
 	@Override
 	public Conversation save(Conversation conversation) {

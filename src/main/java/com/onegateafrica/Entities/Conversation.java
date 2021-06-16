@@ -23,10 +23,10 @@ public class Conversation {
     private Long id;
     @NotNull
     @OneToOne
-    private Consommateur consommateur;
+    private Consommateur consommateur1;
     @NotNull
     @OneToOne
-    private Consommateur remorqueur;
+    private Consommateur consommateur2;
 
     private Date lastActivity;
 
