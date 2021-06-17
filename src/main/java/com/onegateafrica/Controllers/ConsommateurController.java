@@ -136,8 +136,9 @@ public class ConsommateurController {
 
 	@PutMapping("/updateProfilePicture")
 	public ResponseEntity<String> updateClient(@RequestParam MultipartFile image, @RequestParam String phoneNumber) {
-		System.out.println("here");
-		System.out.println(phoneNumber);
+		if(phoneNumber == null || image == null){
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("some of the mandatory fields are null");
+		}
 		Consommateur consommateur = consommateurService.getConsommateurByPhoneNumber(phoneNumber);
 		String photoProfilFileName = phoneNumber + "_" + image.getOriginalFilename();
 		Boolean isPhotoProfilUploaded = ImageIO.uploadImage(image, photoProfilFileName);
