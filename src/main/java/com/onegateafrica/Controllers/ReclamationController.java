@@ -60,9 +60,9 @@ public class ReclamationController {
 
                 //3)---------- get the list of reclamations of a given remorqeur in this week
                 List<Reclamation> allReclamationsList = reclamationService.getReclamationsOfRemorqeur(reclamationDto.getIdRemorqeur()).get();
-                System.out.println(allReclamationsList.size());
-               List<Reclamation> searchedListOfReclmations=  reclamationService.getReclamationsOfWeek(allReclamationsList,currentIntervalWeek.getLeftDateIntervall(),currentIntervalWeek.getRightDateIntervall());
 
+               List<Reclamation> searchedListOfReclmations=  reclamationService.getReclamationsOfWeek(allReclamationsList,currentIntervalWeek.getLeftDateIntervall(),currentIntervalWeek.getRightDateIntervall());
+                System.out.println("this is the liste of reclamations in this week "+searchedListOfReclmations.size());
                //4)----traiter la possibilité d'un bann
                 // ---------- check if the number of recla in the week >= 5 && le premier bann then bann = 3 jours
                 ///-----------check if the number of recla in the week >=10 && le second bann then bann =  10 jours

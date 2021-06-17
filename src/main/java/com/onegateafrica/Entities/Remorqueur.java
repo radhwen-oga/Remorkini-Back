@@ -82,4 +82,7 @@ public  class Remorqueur implements Serializable {
 
   @OneToMany(fetch =FetchType.LAZY ,mappedBy = "remorqueur",cascade = CascadeType.ALL)
   private List<Bannissement> listeBannissements ;
+
+  @Column(name="is_banned")
+  private Boolean isBanned =false ;
 }

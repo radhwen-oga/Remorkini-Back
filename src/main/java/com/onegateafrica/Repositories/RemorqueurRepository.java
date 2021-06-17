@@ -13,13 +13,13 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface RemorqueurRepository extends JpaRepository<Remorqueur,Long> {
   Optional<Remorqueur> findByCinNumber(String cinNumber);
-  @Query(value = "SELECT * FROM Remorqueur WHERE consommateur_id = (SELECT id FROM consommateur WHERE phone_number = :phoneNumber)", nativeQuery = true)
+  @Query(value = "SELECT * FROM remorqeur WHERE consommateur_id = (SELECT id FROM consommateur WHERE phone_number = :phoneNumber)", nativeQuery = true)
   Optional<Remorqueur> findByPhoneNumber(@Param(value="phoneNumber") String phoneNumber);
 
   @Modifying
   @Query("update Remorqueur u set u.isDisponible = :disponibility where u.id = :id")
   void updateDisponibility(@Param(value = "id") long id, @Param(value = "disponibility") boolean disponibility);
 
-  @Query(value = "select * FROM Remorqeur as r  where r.consommateur_id = :idConsommateur" , nativeQuery = true )
+  @Query(value = "select * FROM remorqeur as r  where r.consommateur_id = :idConsommateur" , nativeQuery = true )
   Optional<Remorqueur>  getUserAsRemorqeur(@Param(value="idConsommateur") long idConsommateur) ;
 }
