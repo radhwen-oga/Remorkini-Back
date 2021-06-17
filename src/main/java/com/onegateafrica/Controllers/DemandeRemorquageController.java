@@ -69,6 +69,22 @@ public class DemandeRemorquageController {
 
   }
 
+  @PutMapping("/annulerDemandeParClient/{idDemande}")
+  public ResponseEntity<Object> annulerDemandeParClient (@PathVariable Long idDemande) {
+    if(idDemande != null) {
+      try {
+        DemandeRemorquage demandeRemorquage = demandeRemorquageRepository.findById(idDemande).get();
+        demandeRemorquage.setIsCanceledByClient(true);
+        demandeRemorquageRepository.save(demandeRemorquage);
+        return ResponseEntity.status(HttpStatus.OK).body("modifié avec succés") ;
+      }
+      catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("erreur lors de l'opération de mise à jour") ;
+      }
+    }
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("erreur : idDemande ne peut pas étre null") ;
+  }
+
   @GetMapping("/getDemande/{idDemande}")
   public ResponseEntity<Object> getDemande(@PathVariable Long idDemande) {
     if(idDemande != null ) {
