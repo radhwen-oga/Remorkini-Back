@@ -28,6 +28,7 @@ public class Conversation {
     @OneToOne
     private Consommateur consommateur2;
 
+    @Column
     private Date lastActivity;
 
     @JsonIgnore

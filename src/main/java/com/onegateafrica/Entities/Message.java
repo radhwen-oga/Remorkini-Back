@@ -21,6 +21,8 @@ public class Message {
 
     private Long senderId;
 
+    private Long recieverId;
+
     private String message;
 
     private Date timestamp;

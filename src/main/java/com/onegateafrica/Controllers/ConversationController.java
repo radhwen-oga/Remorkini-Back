@@ -45,6 +45,9 @@ public class ConversationController {
         if (message.getMessage() == null || message.getMessage().length() < 0) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("invalid message");
         }
+        else if(message.getReceiverId() == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("recieverId null");
+        }
         String email = String.valueOf(jwtUtils.parseJwtToken(auth.substring(7)).getBody().get("sub"));
         Optional<Consommateur> consommateur1;
         Optional<Consommateur> consommateur2;
@@ -75,12 +78,13 @@ public class ConversationController {
             newMessage.setConversation(conversation.get());
             newMessage.setSeen(false);
             newMessage.setReceived(false);
-            messageService.save(newMessage);
+            newMessage.setRecieverId(consommateur2.get().getId());
+            newMessage = messageService.save(newMessage);
             Conversation conversationUpdate = conversation.get();
             Date date = new Date();
             conversationUpdate.setLastActivity(date);
             conversationService.save(conversationUpdate);
-            return ResponseEntity.status(HttpStatus.OK).body(date);
+            return ResponseEntity.status(HttpStatus.OK).body(newMessage);
     }
 
     @GetMapping("/getAllConversations")
@@ -126,7 +130,6 @@ public class ConversationController {
                         else
                             messages1 = messages1.subList(begins,messages1.size());
                         messages1 = Lists.reverse(messages1);
-
                         return ResponseEntity.status(HttpStatus.OK).body(messages1);
                     }
                     return ResponseEntity.status(HttpStatus.NOT_FOUND).body("no messages");
@@ -138,4 +141,32 @@ public class ConversationController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid ID");
     }
 
+    @PostMapping("/setSeen/{convId}")
+    public ResponseEntity<?> setSeen(@RequestHeader("Authorization") String auth,
+                                         @PathVariable(name = "convId") Long convId) {
+        if(convId == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("null convId");
+        }
+        String email = String.valueOf(jwtUtils.parseJwtToken(auth.substring(7)).getBody().get("sub"));
+        Optional<Consommateur> user = consommateurService.getConsommateurByEmail(email);
+        if (user.isPresent()) {
+            messageService.setSeen(convId,user.get().getId());
+            return ResponseEntity.status(HttpStatus.OK).body("done!");
+        }
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("something went wrong");
+    }
+    @PostMapping("/setRecieved/{convId}")
+    public ResponseEntity<?> SendMessage(@RequestHeader("Authorization") String auth,
+                                         @PathVariable(name = "convId") Long convId) {
+        if(convId == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("null convId");
+        }
+        String email = String.valueOf(jwtUtils.parseJwtToken(auth.substring(7)).getBody().get("sub"));
+        Optional<Consommateur> user = consommateurService.getConsommateurByEmail(email);
+        if (user.isPresent()) {
+            messageService.setRecieved(user.get().getId());
+            return ResponseEntity.status(HttpStatus.OK).body("done!");
+        }
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("something went wrong");
+    }
 }

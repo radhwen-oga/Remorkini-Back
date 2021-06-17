@@ -62,7 +62,9 @@ public class AuthenticationController {
 
     @PostMapping("/signin")
     public ResponseEntity<?> AuthenticatedUserRealm(@RequestBody LoginForm loginRequest) {
-
+        if(loginRequest.getEmail() == null || loginRequest.getPassword() == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("some of the fields are null");
+        }
         Optional<Consommateur> consommateur = consommateurService.getConsommateurByEmail(loginRequest.getEmail());
         if (consommateur.isPresent()) {
             if (bCryptPasswordEncoder.matches(loginRequest.getPassword(), consommateur.get().getPassword())) {
@@ -94,6 +96,9 @@ public class AuthenticationController {
 
     @PostMapping("/signinGoogle")
     public ResponseEntity<?> AthenticateWithGoogle(@RequestBody tokenForm form) {
+        if(form.getToken() == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("null token");
+        }
         String token = form.getToken();
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
@@ -144,6 +149,9 @@ public class AuthenticationController {
     }
     @PostMapping("/signinFacebook")
     public ResponseEntity<?> AthenticateWithFacebook(@RequestBody tokenForm form) {
+        if(form.getToken() == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("null token");
+        }
         String token = form.getToken();
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
@@ -196,6 +204,10 @@ public class AuthenticationController {
 
     @PostMapping("/signupConsommateur")
     public ResponseEntity<String> registerClient(@RequestBody SignUpForm body) {
+        if(body.getEmail() == null || body.getPassword()== null
+                || body.getLastName()== null || body.getFirstName()== null || body.getPhoneNumber() == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("some of the mandatory fields is null");
+        }
         if (DataValidationUtils.isValid(body.getPhoneNumber())) {
             if (consommateurService.getConsommateurByPhoneNumber(body.getPhoneNumber()) != null) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Phone number already exists.");
