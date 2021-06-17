@@ -9,5 +9,6 @@ public interface MessageService {
 
     Message save(Message message);
     Optional<List<Message>> filterMessage(Long id);
-
+    int setSeen(Long conversationId, Long senderId);
+    int setRecieved(Long recieverId);
 }

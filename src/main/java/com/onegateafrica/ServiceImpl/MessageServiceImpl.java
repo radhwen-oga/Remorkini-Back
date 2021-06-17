@@ -31,4 +31,14 @@ public class MessageServiceImpl implements MessageService {
 	public Optional<List<Message>> filterMessage(Long id) {
 		return messageRepository.filterMessage(id);
 	}
+
+	@Override
+	public int setSeen(Long conversationId, Long senderId) {
+		return messageRepository.setSeen(conversationId, senderId);
+	}
+
+	@Override
+	public int setRecieved(Long recieverId) {
+		return messageRepository.setRecieved(recieverId);
+	}
 }
