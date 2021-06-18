@@ -3,16 +3,22 @@ package com.onegateafrica.Controllers;
 import com.onegateafrica.Entities.Consommateur;
 import com.onegateafrica.Entities.DemandeRemorquage;
 import com.onegateafrica.Entities.Remorqueur;
+import com.onegateafrica.Payloads.request.DemandeRemorquageAccepteDto;
 import com.onegateafrica.Payloads.request.DemandeRemorquageDto;
 import com.onegateafrica.Repositories.DemandeRemorquageRepository;
 import com.onegateafrica.Service.ConsommateurService;
+import com.onegateafrica.Service.DemandeRemorquageService;
 import com.onegateafrica.Service.RemorqueurService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,12 +31,14 @@ public class DemandeRemorquageController {
 
   private final RemorqueurService remorqueurService ;
   private final DemandeRemorquageRepository demandeRemorquageRepository ;
+  private final DemandeRemorquageService demandeRemorquageService ;
   private final ConsommateurService consommateurService ;
 
   @Autowired
-  public DemandeRemorquageController(RemorqueurService remorqueurService, DemandeRemorquageRepository demandeRemorquageRepository, ConsommateurService consommateurService) {
+  public DemandeRemorquageController(RemorqueurService remorqueurService, DemandeRemorquageRepository demandeRemorquageRepository, DemandeRemorquageService demandeRemorquageService, ConsommateurService consommateurService) {
     this.remorqueurService = remorqueurService;
     this.demandeRemorquageRepository = demandeRemorquageRepository;
+    this.demandeRemorquageService = demandeRemorquageService;
     this.consommateurService = consommateurService;
   }
 
@@ -50,6 +58,8 @@ public class DemandeRemorquageController {
        demandeRemorquage.setMarqueVoiture(demandeRemorquageDto.getMarqueVoiture());
        demandeRemorquage.setNbrePersonnes(demandeRemorquageDto.getNbrePersonnes());
        demandeRemorquage.setTypePanne(demandeRemorquageDto.getTypePanne());
+       Instant now = Instant.now();
+       demandeRemorquage.setDateCreation(Timestamp.from(now));
 
        List<DemandeRemorquage> listeDemandeRemorquage = new ArrayList<>();
        listeDemandeRemorquage.add(demandeRemorquage);
@@ -67,6 +77,22 @@ public class DemandeRemorquageController {
 
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("erreur ");
 
+  }
+
+  @GetMapping("/verifierPossibiliteChangementRemorqueur/{idDemande}")
+  public ResponseEntity<Object> VerifierPermissionChangementRemorqueur(@PathVariable  Long idDemande) {
+    if(idDemande != null) {
+      try {
+        boolean resVerif = demandeRemorquageService.permettreChangementRemorqueur(idDemande);
+        return ResponseEntity.status(HttpStatus.OK).body(resVerif);
+      }
+      catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("erreur");
+      }
+
+    }
+
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("l'id demande ne peut pas étre null");
   }
 
   @PutMapping("/annulerDemandeParClient/{idDemande}")
@@ -134,22 +160,32 @@ public class DemandeRemorquageController {
 
   }
 
-  @PostMapping("/accepterDemande/{idDemande}/{idRemorqeur}")
-  public ResponseEntity<Object> accepterDemande(@PathVariable Long idDemande ,@PathVariable Long idRemorqeur ) {
-   if(idDemande != null && idRemorqeur != null ) {
-     Optional<Remorqueur> remorqueur  = remorqueurService.getRemorqueur(idRemorqeur);
-     Optional<DemandeRemorquage> demande  = demandeRemorquageRepository.findById(idDemande);
+  @PutMapping("/accepterDemande/")
+  public ResponseEntity<Object> accepterDemande(@RequestBody DemandeRemorquageAccepteDto demandeRemorquageAccepteDto) {
+   if(demandeRemorquageAccepteDto.getIdDemande() != null && demandeRemorquageAccepteDto.getIdRemorqeur() != null ) {
+     Optional<Remorqueur> remorqueur  = remorqueurService.getRemorqueur(demandeRemorquageAccepteDto.getIdRemorqeur() );
+     Optional<DemandeRemorquage> demande  = demandeRemorquageRepository.findById(demandeRemorquageAccepteDto.getIdDemande());
 
-     if(remorqueur.get() !=null  && demande.get() !=null   ) {
+     try {
+       Instant now = Instant.now();
+       Timestamp dateAcceptation = Timestamp.from(now);
+
        demande.get().setRemorqueur(remorqueur.get());
        demande.get().setIsDeclined(false);
+       demande.get().setDurreeInMinutes(demandeRemorquageAccepteDto.getDureeInMin());
+       demande.get().setDateAcceptation(dateAcceptation);
+
        demandeRemorquageRepository.save(demande.get());
        return ResponseEntity.status(HttpStatus.OK).body(demande);
      }
+     catch (Exception e) {
+       return ResponseEntity.status(HttpStatus.NOT_FOUND).body("erreur");
+     }
+
    }
 
 
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("erreur");
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("idDemande et idRemorqeur ne peuvent pas étre null");
   }
 
  @PostMapping("/finirCourse/{idDemande}/{isFinished}")
