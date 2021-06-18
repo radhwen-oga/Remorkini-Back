@@ -1,5 +1,7 @@
 package com.onegateafrica.Service;
 
+import com.onegateafrica.Payloads.response.VerificationChangementRemorqeurResponse;
+
 public interface DemandeRemorquageService {
-    boolean permettreChangementRemorqueur(Long idDemande);
+    VerificationChangementRemorqeurResponse permettreChangementRemorqueur(Long idDemande);
 }

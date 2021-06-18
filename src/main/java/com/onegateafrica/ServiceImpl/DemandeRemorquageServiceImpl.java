@@ -1,6 +1,7 @@
 package com.onegateafrica.ServiceImpl;
 
 import com.onegateafrica.Entities.DemandeRemorquage;
+import com.onegateafrica.Payloads.response.VerificationChangementRemorqeurResponse;
 import com.onegateafrica.Repositories.DemandeRemorquageRepository;
 import com.onegateafrica.Service.DemandeRemorquageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,23 +25,24 @@ public class DemandeRemorquageServiceImpl implements DemandeRemorquageService {
     }
 
     @Override
-    public boolean permettreChangementRemorqueur(Long idDemande) {
+    public VerificationChangementRemorqeurResponse permettreChangementRemorqueur(Long idDemande) {
         DemandeRemorquage demandeRemorquage = demandeRemorquageRepository.findById(idDemande).get();
 
         Date now = Date.from(Instant.now());
         Instant dateAcceptationInInstant = demandeRemorquage.getDateAcceptation().toInstant();
         Date dateFin = Date.from(dateAcceptationInInstant.plus(Duration.ofMinutes(demandeRemorquage.getDurreeInMinutes())));
 
-        System.out.println("this now "+now);
-        System.out.println("tis is date fin "+dateFin);
+        VerificationChangementRemorqeurResponse res = new VerificationChangementRemorqeurResponse();
+        res.setFinDuree(dateFin.toString());
 
-        System.out.println("this is result of comparaison "+now.compareTo(dateFin));
 
         //verifier si on a dépassé la durée on retourne true sinon false
-        if(now.compareTo((dateFin)) > 0) {
-            return true ;
+        if(now.compareTo((dateFin)) > 0 && (demandeRemorquage.getIsClientPickedUp() ==null || demandeRemorquage.getIsClientPickedUp()==false ) ) {
+            res.setChangingPermitted(true);
+            return res ;
         }
-        return false ;
+        res.setChangingPermitted(false);
+        return res ;
 
 
 

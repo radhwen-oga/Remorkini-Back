@@ -5,6 +5,7 @@ import com.onegateafrica.Entities.DemandeRemorquage;
 import com.onegateafrica.Entities.Remorqueur;
 import com.onegateafrica.Payloads.request.DemandeRemorquageAccepteDto;
 import com.onegateafrica.Payloads.request.DemandeRemorquageDto;
+import com.onegateafrica.Payloads.response.VerificationChangementRemorqeurResponse;
 import com.onegateafrica.Repositories.DemandeRemorquageRepository;
 import com.onegateafrica.Service.ConsommateurService;
 import com.onegateafrica.Service.DemandeRemorquageService;
@@ -83,7 +84,8 @@ public class DemandeRemorquageController {
   public ResponseEntity<Object> VerifierPermissionChangementRemorqueur(@PathVariable  Long idDemande) {
     if(idDemande != null) {
       try {
-        boolean resVerif = demandeRemorquageService.permettreChangementRemorqueur(idDemande);
+        VerificationChangementRemorqeurResponse resVerif = demandeRemorquageService.permettreChangementRemorqueur(idDemande);
+
         return ResponseEntity.status(HttpStatus.OK).body(resVerif);
       }
       catch (Exception e) {
