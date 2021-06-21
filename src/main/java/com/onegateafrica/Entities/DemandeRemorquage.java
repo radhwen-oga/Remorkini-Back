@@ -61,6 +61,14 @@ public class DemandeRemorquage implements Serializable {
   @Column(name="durreinmin")
   private long DurreeInMinutes=0 ;
 
+  @OneToOne(cascade = CascadeType.ALL)
+  @JoinColumn(name = "departRemorquage")
+  private Location departRemorquage ;
+
+  @OneToOne(cascade = CascadeType.ALL )
+  @JoinColumn(name = "destinationRemorquage")
+  private Location destinationRemorquage ;
+
 
 
 

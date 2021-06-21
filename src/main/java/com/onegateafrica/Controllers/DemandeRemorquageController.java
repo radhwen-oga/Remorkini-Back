@@ -2,6 +2,7 @@ package com.onegateafrica.Controllers;
 
 import com.onegateafrica.Entities.Consommateur;
 import com.onegateafrica.Entities.DemandeRemorquage;
+import com.onegateafrica.Entities.Location;
 import com.onegateafrica.Entities.Remorqueur;
 import com.onegateafrica.Payloads.request.DemandeRemorquageAccepteDto;
 import com.onegateafrica.Payloads.request.DemandeRemorquageDto;
@@ -48,7 +49,7 @@ public class DemandeRemorquageController {
   public ResponseEntity< Object > addDemandeRemorquage(@RequestBody DemandeRemorquageDto demandeRemorquageDto){
 
    if(demandeRemorquageDto != null) {
-     try{
+     //try{
        Optional<Consommateur> consommateur = consommateurService.getConsommateur(demandeRemorquageDto.getIdConsommateur());
 
        DemandeRemorquage demandeRemorquage = new DemandeRemorquage();
@@ -62,6 +63,14 @@ public class DemandeRemorquageController {
        Instant now = Instant.now();
        demandeRemorquage.setDateCreation(Timestamp.from(now));
 
+       Location depart = new Location(demandeRemorquageDto.getDepartLattitude(),demandeRemorquageDto.getDepartLongitude());
+      // depart.setDemandeRemorquageDepart(demandeRemorquage);
+       Location destination = new Location(demandeRemorquageDto.getDestinationLattitude(),demandeRemorquageDto.getDestinationLongitude());
+//       destination.setDemandeRemorquageDestination(demandeRemorquage);
+
+       demandeRemorquage.setDepartRemorquage(depart);
+       demandeRemorquage.setDestinationRemorquage(destination);
+
        List<DemandeRemorquage> listeDemandeRemorquage = new ArrayList<>();
        listeDemandeRemorquage.add(demandeRemorquage);
 
@@ -70,10 +79,10 @@ public class DemandeRemorquageController {
        demandeRemorquageRepository.save(demandeRemorquage);
        //consommateurService.saveOrUpdateConsommateur(entity);
        return ResponseEntity.status(HttpStatus.OK).body(demandeRemorquage);
-     }
-     catch (Exception e) {
-       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("erreur");
-     }
+     //}
+     //catch (Exception e) {
+       //return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("erreur");
+     //}
    }
 
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("erreur ");
