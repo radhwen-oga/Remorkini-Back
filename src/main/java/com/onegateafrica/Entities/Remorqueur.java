@@ -85,4 +85,7 @@ public  class Remorqueur implements Serializable {
 
   @Column(name="is_banned")
   private Boolean isBanned =false ;
+
+  @OneToOne(cascade = CascadeType.ALL)
+  private VoitureRemorquage voitureRemorquage ;
 }

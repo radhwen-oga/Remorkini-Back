@@ -49,40 +49,40 @@ public class DemandeRemorquageController {
   public ResponseEntity< Object > addDemandeRemorquage(@RequestBody DemandeRemorquageDto demandeRemorquageDto){
 
    if(demandeRemorquageDto != null) {
-     //try{
-       Optional<Consommateur> consommateur = consommateurService.getConsommateur(demandeRemorquageDto.getIdConsommateur());
+     try {
+         Optional<Consommateur> consommateur = consommateurService.getConsommateur(demandeRemorquageDto.getIdConsommateur());
 
-       DemandeRemorquage demandeRemorquage = new DemandeRemorquage();
-       Consommateur entity = consommateur.get();
+         DemandeRemorquage demandeRemorquage = new DemandeRemorquage();
+         Consommateur entity = consommateur.get();
 
-       demandeRemorquage.setConsommateur(entity);
-       //demandeRemorquage.setDescription(demandeRemorquageDto.getDescription());
-       demandeRemorquage.setMarqueVoiture(demandeRemorquageDto.getMarqueVoiture());
-       demandeRemorquage.setNbrePersonnes(demandeRemorquageDto.getNbrePersonnes());
-       demandeRemorquage.setTypePanne(demandeRemorquageDto.getTypePanne());
-       Instant now = Instant.now();
-       demandeRemorquage.setDateCreation(Timestamp.from(now));
+         demandeRemorquage.setConsommateur(entity);
+         //demandeRemorquage.setDescription(demandeRemorquageDto.getDescription());
+         demandeRemorquage.setMarqueVoiture(demandeRemorquageDto.getMarqueVoiture());
+         demandeRemorquage.setNbrePersonnes(demandeRemorquageDto.getNbrePersonnes());
+         demandeRemorquage.setTypePanne(demandeRemorquageDto.getTypePanne());
+         Instant now = Instant.now();
+         demandeRemorquage.setDateCreation(Timestamp.from(now));
 
-       Location depart = new Location(demandeRemorquageDto.getDepartLattitude(),demandeRemorquageDto.getDepartLongitude());
-      // depart.setDemandeRemorquageDepart(demandeRemorquage);
-       Location destination = new Location(demandeRemorquageDto.getDestinationLattitude(),demandeRemorquageDto.getDestinationLongitude());
+         Location depart = new Location(demandeRemorquageDto.getDepartLattitude(), demandeRemorquageDto.getDepartLongitude());
+         // depart.setDemandeRemorquageDepart(demandeRemorquage);
+         Location destination = new Location(demandeRemorquageDto.getDestinationLattitude(), demandeRemorquageDto.getDestinationLongitude());
 //       destination.setDemandeRemorquageDestination(demandeRemorquage);
 
-       demandeRemorquage.setDepartRemorquage(depart);
-       demandeRemorquage.setDestinationRemorquage(destination);
+         demandeRemorquage.setDepartRemorquage(depart);
+         demandeRemorquage.setDestinationRemorquage(destination);
 
-       List<DemandeRemorquage> listeDemandeRemorquage = new ArrayList<>();
-       listeDemandeRemorquage.add(demandeRemorquage);
+         List<DemandeRemorquage> listeDemandeRemorquage = new ArrayList<>();
+         listeDemandeRemorquage.add(demandeRemorquage);
 
-       entity.setListeDemandesRemorquage(listeDemandeRemorquage);
+         entity.setListeDemandesRemorquage(listeDemandeRemorquage);
 
-       demandeRemorquageRepository.save(demandeRemorquage);
-       //consommateurService.saveOrUpdateConsommateur(entity);
-       return ResponseEntity.status(HttpStatus.OK).body(demandeRemorquage);
-     //}
-     //catch (Exception e) {
-       //return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("erreur");
-     //}
+         demandeRemorquageRepository.save(demandeRemorquage);
+         //consommateurService.saveOrUpdateConsommateur(entity);
+         return ResponseEntity.status(HttpStatus.OK).body(demandeRemorquage);
+     }
+     catch (Exception e) {
+       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("erreur");
+     }
    }
 
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("erreur ");
