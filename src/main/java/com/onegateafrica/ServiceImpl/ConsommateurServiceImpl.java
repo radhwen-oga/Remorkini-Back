@@ -1,5 +1,6 @@
 package com.onegateafrica.ServiceImpl;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -60,6 +61,16 @@ public class ConsommateurServiceImpl implements ConsommateurService {
 	@Override
 	public Optional<Consommateur> getConsommateurByEmail(String Email) {
 		return consommateurRepository.findByEmail(Email);
+	}
+
+	@Override
+	public int keepAlive(String email) {
+		return consommateurRepository.keepalive(email, new Date());
+	}
+
+	@Override
+	public int kill() {
+		return consommateurRepository.kill();
 	}
 
 }

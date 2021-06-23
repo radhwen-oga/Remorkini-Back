@@ -12,6 +12,8 @@ import com.onegateafrica.Service.RemorqueurService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
@@ -78,7 +80,7 @@ public class ConversationController {
             newMessage.setConversation(conversation.get());
             newMessage.setSeen(false);
             newMessage.setReceived(false);
-            newMessage.setRecieverId(consommateur2.get().getId());
+            newMessage.setRecieverId(consommateur2.get().getId() );
             newMessage = messageService.save(newMessage);
             Conversation conversationUpdate = conversation.get();
             Date date = new Date();
