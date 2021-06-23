@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -46,4 +47,12 @@ public abstract class User {
 
 	@Column(name="is_blocked")
 	private boolean isBlocked=false;
+	@Column(name="is_connected")
+	private Boolean isConnected=true;
+	@Column(name="last_activity")
+	private Date lastActivity;
+	@Column(name="longitude")
+	private Float longitude;
+	@Column(name="latitude")
+	private Float latitude;
 }
