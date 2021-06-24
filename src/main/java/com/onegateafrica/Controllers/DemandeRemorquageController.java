@@ -233,34 +233,25 @@ public class DemandeRemorquageController {
     return ResponseEntity.status(HttpStatus.OK).body("error");
   }
 
-  @PostMapping("/declineDemande/{idConsommateur}/{idRemorqeur}/{idDemande}")
+  @PutMapping("/declineDemande/{idRemorqeur}/{idDemande}")
   //@PreAuthorize("hasRole('REMORQEUR')")
-  public ResponseEntity< Object > declineDemande(@PathVariable Long idConsommateur ,@PathVariable Long idRemorqeur ,@PathVariable Long idDemande  ) {
-    if(idConsommateur != null && idRemorqeur != null && idDemande != null) {
-      Optional<Consommateur> consommateur = consommateurService.getConsommateur(idConsommateur);
-      Optional<Remorqueur> remorqueur = remorqueurService.getRemorqueur(idRemorqeur);
-
-      if (consommateur.get() != null) {
+  public ResponseEntity< Object > declineDemande(@PathVariable Long idRemorqeur ,@PathVariable Long idDemande  ) {
+    if( idRemorqeur != null && idDemande != null) {
 
         try {
-          List<DemandeRemorquage> liste = consommateur.get().getListeDemandesRemorquage();
 
-          for (DemandeRemorquage d : liste) {
-            if (d.getId() == idDemande) {
+            Remorqueur remorqueur = remorqueurService.getRemorqueur(idRemorqeur).get();
+            DemandeRemorquage demandeRemorquage = demandeRemorquageRepository.findById(idDemande).get();
 
-              d.setIsDeclined(true);
-              d.setRemorqueur(remorqueur.get());
-
-            }
-          }
-
-          consommateur.get().setListeDemandesRemorquage(liste);
-          consommateurService.saveOrUpdateConsommateur(consommateur.get());
+            remorqueur.getListeDemandesRemorquage().add(demandeRemorquage);
+            demandeRemorquage.setRemorqueur(remorqueur);
+            demandeRemorquage.setIsDeclined(true);
+            demandeRemorquageRepository.save(demandeRemorquage);
           return ResponseEntity.status(HttpStatus.OK).body("succes");
         } catch (Exception e) {
           return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("echec");
         }
-      }
+
     }
 
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("verifier l'id de la demande");
