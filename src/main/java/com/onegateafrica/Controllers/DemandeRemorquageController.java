@@ -57,9 +57,11 @@ public class DemandeRemorquageController {
 
          demandeRemorquage.setConsommateur(entity);
          //demandeRemorquage.setDescription(demandeRemorquageDto.getDescription());
-         demandeRemorquage.setMarqueVoiture(demandeRemorquageDto.getMarqueVoiture());
-         demandeRemorquage.setNbrePersonnes(demandeRemorquageDto.getNbrePersonnes());
-         demandeRemorquage.setTypePanne(demandeRemorquageDto.getTypePanne());
+         if(demandeRemorquageDto.getMarqueVoiture() !=null) demandeRemorquage.setMarqueVoiture(demandeRemorquageDto.getMarqueVoiture());
+         if(demandeRemorquageDto.getNbrePersonnes()!=null) demandeRemorquage.setNbrePersonnes(demandeRemorquageDto.getNbrePersonnes());
+         if(demandeRemorquageDto.getTypePanne()!=null) demandeRemorquage.setTypePanne(demandeRemorquageDto.getTypePanne());
+         if(demandeRemorquageDto.getTypeRemorquage() !=null) demandeRemorquage.setTypeRemorquage(demandeRemorquageDto.getTypeRemorquage());
+
          Instant now = Instant.now();
          demandeRemorquage.setDateCreation(Timestamp.from(now));
 

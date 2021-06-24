@@ -69,6 +69,8 @@ public class DemandeRemorquage implements Serializable {
   @JoinColumn(name = "destinationRemorquage")
   private Location destinationRemorquage ;
 
+  private String typeRemorquage ;
+
 
 
 
