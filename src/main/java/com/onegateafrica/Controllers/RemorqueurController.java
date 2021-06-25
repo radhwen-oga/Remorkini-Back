@@ -4,6 +4,7 @@ package com.onegateafrica.Controllers;
 import com.onegateafrica.Controllers.utils.DataValidationUtils;
 import com.onegateafrica.Controllers.utils.ImageIO;
 import com.onegateafrica.Entities.*;
+import com.onegateafrica.Payloads.request.PositionVoitureDto;
 import com.onegateafrica.Payloads.request.SignUpRemorqueur;
 import com.onegateafrica.Payloads.response.BannResponse;
 import com.onegateafrica.Repositories.RoleRepository;
@@ -258,6 +259,28 @@ public class RemorqueurController {
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("erreur ");
 
+    }
+
+    @PutMapping("/modifierPositionVoiture/{idRemorqueur}")
+    private ResponseEntity<Object> mettreAjourPositionVoiture(@PathVariable  Long idRemorqueur , @RequestBody PositionVoitureDto positionVoitureDto) {
+        if(idRemorqueur !=null && positionVoitureDto !=null) {
+            try {
+                Remorqueur remorqueur = remorqueurService.getRemorqueur(idRemorqueur).get();
+
+                remorqueur.getVoitureRemorquage().getPosition().setLattitude(positionVoitureDto.getLatitude());
+                remorqueur.getVoitureRemorquage().getPosition().setLongitude(positionVoitureDto.getLongitude());
+                remorqueur.getVoitureRemorquage().setHeading(positionVoitureDto.getHeading());
+                remorqueurService.saveOrUpdateRemorqueur(remorqueur);
+
+                return ResponseEntity.status(HttpStatus.OK).body(remorqueur);
+            }
+            catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("erreur");
+            }
+
+        }
+
+         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("l'id du remorqueur ou les position ne peuvent pas etre nul");
     }
 
 

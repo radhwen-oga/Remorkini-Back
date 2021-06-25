@@ -246,4 +246,21 @@ public class ConsommateurController {
 			return null;
 		}
 	}
+
+
+
+	@GetMapping("/getConsommateurById/{id}")
+	public  ResponseEntity< Object > getClientById(@PathVariable Long id) {
+		if(id != null ) {
+			try{
+				Consommateur consommateur = consommateurService.getConsommateur(id).get();
+				return ResponseEntity.status(HttpStatus.OK).body(consommateur);
+			}
+			catch (Exception e) {
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("erreur");
+			}
+		}
+
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("l'id du consommateur ne peut pas étre null");
+	}
 }

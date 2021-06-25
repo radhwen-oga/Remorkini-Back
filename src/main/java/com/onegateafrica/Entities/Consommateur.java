@@ -44,5 +44,8 @@ public class Consommateur extends User {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "consommateur",cascade = CascadeType.ALL  )
     private List<DemandeRemorquage> listeDemandesRemorquage ;
 
+    @ManyToOne
+    private Assurance assurance ;
+
 
 }
