@@ -292,6 +292,24 @@ public class DemandeRemorquageController {
               demandeRemorquage.setIsdemandeChangedByClient(true);
               demandeRemorquageRepository.save(demandeRemorquage);
 
+
+
+              //2)-------- ajouter et affecter la reclamation au remorqeur en question
+
+              Reclamation reclamation = new Reclamation() ;
+              //if(!reclamationDto.getDescription().isEmpty()) reclamation.setDescription(reclamationDto.getDescription());
+              reclamation.setRemorqueur(remorqueurRefuse);
+              reclamation.setTypeReclamation(ETypeReclamation.RETARD);
+
+              Instant today = Instant.now();
+
+              reclamation.setDateAjout( Timestamp.from(today));
+
+              remorqueurRefuse.getListeReclamations().add(reclamation);
+
+
+              remorqueurService.saveOrUpdateRemorqueur(remorqueurRefuse);
+
               return ResponseEntity.status(HttpStatus.OK).body(demandeRemorquage) ;
           }
           catch (Exception e) {
