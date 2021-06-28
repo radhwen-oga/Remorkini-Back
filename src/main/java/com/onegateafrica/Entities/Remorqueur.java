@@ -88,4 +88,8 @@ public  class Remorqueur implements Serializable {
 
   @OneToOne(cascade = CascadeType.ALL)
   private VoitureRemorquage voitureRemorquage ;
+
+
+  @OneToMany(fetch = FetchType.LAZY, mappedBy = "RemorqeurRefuse",cascade = CascadeType.ALL  )
+  private List<DemandeRemorqeurChangeParClient> listeDemandesRemorquageChangeParClient ;
 }

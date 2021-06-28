@@ -1,5 +1,6 @@
 package com.onegateafrica.ServiceImpl;
 
+import com.onegateafrica.Entities.DemandeRemorqeurChangeParClient;
 import com.onegateafrica.Entities.DemandeRemorquage;
 import com.onegateafrica.Payloads.response.VerificationChangementRemorqeurResponse;
 import com.onegateafrica.Repositories.DemandeRemorquageRepository;
@@ -47,5 +48,15 @@ public class DemandeRemorquageServiceImpl implements DemandeRemorquageService {
 
 
 
+    }
+
+    @Override
+    public boolean VerfierExisistanceRemorqueurDansListeDesRefuse(DemandeRemorquage demandeRemorquage, Long idRemorqeur) {
+
+        for(DemandeRemorqeurChangeParClient d : demandeRemorquage.getListeDemandesRemorquageChangesParClient()){
+            if(d.getRemorqeurRefuse().getId() == idRemorqeur) return true ;
+        }
+
+        return false;
     }
 }

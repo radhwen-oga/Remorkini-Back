@@ -1,15 +1,14 @@
 package com.onegateafrica.Entities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Fetch;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -68,6 +67,14 @@ public class DemandeRemorquage implements Serializable {
   @OneToOne(cascade = CascadeType.ALL )
   @JoinColumn(name = "destinationRemorquage")
   private Location destinationRemorquage ;
+
+
+  @JsonIgnore
+  @OneToMany(fetch = FetchType.LAZY, mappedBy = "Demande",cascade = CascadeType.ALL  )
+  private List<DemandeRemorqeurChangeParClient> listeDemandesRemorquageChangesParClient ;
+
+  private Boolean isdemandeChangedByClient ;
+
 
   private String typeRemorquage ;
 
