@@ -48,6 +48,9 @@ public abstract class ImageIO {
     return null;
     }
   }
+  public static Boolean isImage(String imageName){
+    return new File(IMAGE_DIRECTORY+imageName+"."+DEFAULT_IMAGE_EXTENSION).isFile();
+  }
 
   public static byte[] getImagePlaceholder() {
     try {
