@@ -1,6 +1,7 @@
 package com.onegateafrica.Service;
 
 import com.onegateafrica.Entities.Conversation;
+import com.onegateafrica.Entities.Message;
 
 import java.util.List;
 import java.util.Optional;
