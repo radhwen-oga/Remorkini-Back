@@ -41,4 +41,14 @@ public class MessageServiceImpl implements MessageService {
 	public int setRecieved(Long recieverId) {
 		return messageRepository.setRecieved(recieverId);
 	}
+
+	@Override
+	public Optional<List<Message>> getNewMessages(Long recieverId,Long id) {
+		return messageRepository.getNewMessages(recieverId,id);
+	}
+
+	@Override
+	public int setRecieved(Long recieverId, Long conversationId) {
+		return messageRepository.setRecieved(recieverId,conversationId);
+	}
 }
