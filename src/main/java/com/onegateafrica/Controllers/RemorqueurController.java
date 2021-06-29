@@ -3,7 +3,9 @@ package com.onegateafrica.Controllers;
 
 import com.onegateafrica.Controllers.utils.DataValidationUtils;
 import com.onegateafrica.Controllers.utils.ImageIO;
-import com.onegateafrica.Entities.*;
+import com.onegateafrica.Entities.Consommateur;
+import com.onegateafrica.Entities.RemorqeurType;
+import com.onegateafrica.Entities.Remorqueur;
 import com.onegateafrica.Payloads.request.SignUpRemorqueur;
 import com.onegateafrica.Payloads.response.BannResponse;
 import com.onegateafrica.Repositories.RoleRepository;
@@ -40,7 +42,7 @@ public class RemorqueurController {
     private final ConsommateurService consommateurService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final RoleRepository roleRepository;
-    private final BannissementService bannissementService ;
+    private final BannissementService bannissementService;
     Logger logger = LoggerFactory.getLogger(RemorqueurController.class);
 
 
@@ -53,9 +55,10 @@ public class RemorqueurController {
         this.roleRepository = roleRepository;
         this.bannissementService = bannissementService;
     }
+
     @GetMapping("/getConsommateurAsRemorqueur/{idConsommateur}")
     public ResponseEntity<Object> getConsommateurAsRemorqueur(@PathVariable Long idConsommateur) {
-        if(idConsommateur!= null) {
+        if (idConsommateur != null) {
             Remorqueur remorqueur = remorqueurService.getConsommateurAsRemorqeur(idConsommateur).get();
             return ResponseEntity.status(HttpStatus.OK).body(remorqueur);
         }
@@ -67,7 +70,7 @@ public class RemorqueurController {
     @GetMapping("/remorqeur/{id}")
     //@PreAuthorize("hasRole('REMORQEUR')")
     public ResponseEntity<Remorqueur> getRemorqeurById(@PathVariable Long id) {
-        if(id != null) {
+        if (id != null) {
             Optional<Remorqueur> remorqueur = remorqueurService.getRemorqueur(id);
             if (remorqueur.get() != null) {
                 return ResponseEntity.status(HttpStatus.OK).body(remorqueur.get());
@@ -76,11 +79,12 @@ public class RemorqueurController {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
     }
+
     @GetMapping("/remorqeurpn")
     public ResponseEntity<Remorqueur> getRemorqeurByPhoneNumber(@RequestParam("phoneNumber") String phoneNumber) {
-        if(phoneNumber != null) {
+        if (phoneNumber != null) {
             Optional<Remorqueur> remorqueur = remorqueurService.findRemorqueurByPhoneNumber(phoneNumber);
-            if (remorqueur.isPresent()){
+            if (remorqueur.isPresent()) {
                 return ResponseEntity.status(HttpStatus.OK).body(remorqueur.get());
             }
 
@@ -164,25 +168,24 @@ public class RemorqueurController {
 
 
     @PostMapping("/signupRemorqueurLibre")
-    public ResponseEntity<String> saveRemorqueurLibre(@RequestBody SignUpRemorqueur body)
-        {
-            Consommateur consommateur= consommateurService.getConsommateurByPhoneNumber(body.getPhoneNumber());
-            if(consommateur != null) {
-                Remorqueur remorqueur = new Remorqueur();
-                remorqueur.setConsommateur(consommateur);
-                remorqueur.setCinNumber(body.getCinNumber());
-                remorqueur.setCinPhoto(body.getCinPhoto());
-                remorqueur.setDateDebut(new Date());
-                remorqueur.setMatriculeRemorquage(body.getMatriculeRemorquage());
-                remorqueur.setVerified(false);
-                remorqueur.setRaisonSociale(body.getRaisonSociale());
-                remorqueur.setRemorqeurType(RemorqeurType.LIBRE);
-                remorqueur.setPatentePhoto(body.getPatentePhoto());
-                remorqueurService.saveOrUpdateRemorqueur(remorqueur);
-                return ResponseEntity.status(HttpStatus.CREATED).body("created");
-            }
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("error");
+    public ResponseEntity<String> saveRemorqueurLibre(@RequestBody SignUpRemorqueur body) {
+        Consommateur consommateur = consommateurService.getConsommateurByPhoneNumber(body.getPhoneNumber());
+        if (consommateur != null) {
+            Remorqueur remorqueur = new Remorqueur();
+            remorqueur.setConsommateur(consommateur);
+            remorqueur.setCinNumber(body.getCinNumber());
+            remorqueur.setCinPhoto(body.getCinPhoto());
+            remorqueur.setDateDebut(new Date());
+            remorqueur.setMatriculeRemorquage(body.getMatriculeRemorquage());
+            remorqueur.setVerified(false);
+            remorqueur.setRaisonSociale(body.getRaisonSociale());
+            remorqueur.setRemorqeurType(RemorqeurType.LIBRE);
+            remorqueur.setPatentePhoto(body.getPatentePhoto());
+            remorqueurService.saveOrUpdateRemorqueur(remorqueur);
+            return ResponseEntity.status(HttpStatus.CREATED).body("created");
         }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("error");
+    }
 
     @GetMapping(value = "/pictures", produces = MediaType.IMAGE_PNG_VALUE)
     public @ResponseBody
@@ -244,22 +247,20 @@ public class RemorqueurController {
     }
 
     @GetMapping("/verifierBann/{idRemorqueur}")
-    public ResponseEntity<Object> verfierBannOfRemorqueur (@PathVariable Long idRemorqueur) {
-        if(idRemorqueur != null ){
+    public ResponseEntity<Object> verfierBannOfRemorqueur(@PathVariable Long idRemorqueur) {
+        if (idRemorqueur != null) {
             try {
 
-              BannResponse bannResponse =  bannissementService.verifierBann(idRemorqueur);
+                BannResponse bannResponse = bannissementService.verifierBann(idRemorqueur);
 
                 return ResponseEntity.status(HttpStatus.OK).body(bannResponse);
-            }
-            catch (Exception e){
+            } catch (Exception e) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("erreur ");
             }
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("erreur ");
 
     }
-
 
 
 }
