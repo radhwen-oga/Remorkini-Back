@@ -171,6 +171,12 @@ public class RemorqueurController {
 
     @PostMapping("/signupRemorqueurLibre")
     public ResponseEntity<String> saveRemorqueurLibre(@RequestBody SignUpRemorqueur body) {
+        if(body == null || body.getCinNumber() == null || body.getPhoneNumber()== null || body.getCinPhoto() == null ||
+            body.getMatriculeRemorquage() == null || body.getPatentePhoto() == null || body.getRaisonSociale()==null
+        ){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("invalid parameters");
+
+        }
         Consommateur consommateur = consommateurService.getConsommateurByPhoneNumber(body.getPhoneNumber());
         if (consommateur != null) {
             Remorqueur remorqueur = new Remorqueur();

@@ -148,6 +148,10 @@ public class ConversationController {
     @GetMapping("/getNewMessagesById/{id}")
     public ResponseEntity<?> getNewMessages(@PathVariable(name = "id") Long id,
                                                     @RequestHeader("Authorization") String auth) {
+        if(id == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("conversation id is null");
+
+        }
         String email = String.valueOf(jwtUtils.parseJwtToken(auth.substring(7)).getBody().get("sub"));
         Optional<Consommateur> user = consommateurService.getConsommateurByEmail(email);
         if (user.isPresent()) {
@@ -208,6 +212,12 @@ public class ConversationController {
             @RequestParam("image") MultipartFile image,
             @RequestParam("id") Long id
     ) {
+        if(id == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("id null");
+        }
+        if(image == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("image null");
+        }
         if (ImageIO.uploadImage(image, image.hashCode() + id + "image" + "-" + image.getOriginalFilename())) {
             return ResponseEntity.status(HttpStatus.CREATED).body(image.hashCode() + id + "image" + "-" + image.getOriginalFilename());
         }
@@ -224,6 +234,12 @@ public class ConversationController {
         /**
          * http://localhost:8080/api/cinPicture?cinNumber=[cinNumber]
          */
+        if(id == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("id null");
+        }
+        if(imageName == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("imageName null");
+        }
         System.out.println(imageName);
         String email = String.valueOf(jwtUtils.parseJwtToken(auth.substring(7)).getBody().get("sub"));
         Optional<Conversation> conversation = conversationService.findById(id);
