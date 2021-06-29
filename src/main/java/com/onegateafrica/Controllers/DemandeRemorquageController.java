@@ -2,17 +2,25 @@ package com.onegateafrica.Controllers;
 
 import com.onegateafrica.Entities.Consommateur;
 import com.onegateafrica.Entities.DemandeRemorquage;
+import com.onegateafrica.Entities.Location;
 import com.onegateafrica.Entities.Remorqueur;
+import com.onegateafrica.Payloads.request.DemandeRemorquageAccepteDto;
 import com.onegateafrica.Payloads.request.DemandeRemorquageDto;
+import com.onegateafrica.Payloads.response.VerificationChangementRemorqeurResponse;
 import com.onegateafrica.Repositories.DemandeRemorquageRepository;
 import com.onegateafrica.Service.ConsommateurService;
+import com.onegateafrica.Service.DemandeRemorquageService;
 import com.onegateafrica.Service.RemorqueurService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,12 +33,14 @@ public class DemandeRemorquageController {
 
   private final RemorqueurService remorqueurService ;
   private final DemandeRemorquageRepository demandeRemorquageRepository ;
+  private final DemandeRemorquageService demandeRemorquageService ;
   private final ConsommateurService consommateurService ;
 
   @Autowired
-  public DemandeRemorquageController(RemorqueurService remorqueurService, DemandeRemorquageRepository demandeRemorquageRepository, ConsommateurService consommateurService) {
+  public DemandeRemorquageController(RemorqueurService remorqueurService, DemandeRemorquageRepository demandeRemorquageRepository, DemandeRemorquageService demandeRemorquageService, ConsommateurService consommateurService) {
     this.remorqueurService = remorqueurService;
     this.demandeRemorquageRepository = demandeRemorquageRepository;
+    this.demandeRemorquageService = demandeRemorquageService;
     this.consommateurService = consommateurService;
   }
 
@@ -39,26 +49,38 @@ public class DemandeRemorquageController {
   public ResponseEntity< Object > addDemandeRemorquage(@RequestBody DemandeRemorquageDto demandeRemorquageDto){
 
    if(demandeRemorquageDto != null) {
-     try{
-       Optional<Consommateur> consommateur = consommateurService.getConsommateur(demandeRemorquageDto.getIdConsommateur());
+     try {
+         Optional<Consommateur> consommateur = consommateurService.getConsommateur(demandeRemorquageDto.getIdConsommateur());
 
-       DemandeRemorquage demandeRemorquage = new DemandeRemorquage();
-       Consommateur entity = consommateur.get();
+         DemandeRemorquage demandeRemorquage = new DemandeRemorquage();
+         Consommateur entity = consommateur.get();
 
-       demandeRemorquage.setConsommateur(entity);
-       //demandeRemorquage.setDescription(demandeRemorquageDto.getDescription());
-       demandeRemorquage.setMarqueVoiture(demandeRemorquageDto.getMarqueVoiture());
-       demandeRemorquage.setNbrePersonnes(demandeRemorquageDto.getNbrePersonnes());
-       demandeRemorquage.setTypePanne(demandeRemorquageDto.getTypePanne());
+         demandeRemorquage.setConsommateur(entity);
+         //demandeRemorquage.setDescription(demandeRemorquageDto.getDescription());
+         if(demandeRemorquageDto.getMarqueVoiture() !=null) demandeRemorquage.setMarqueVoiture(demandeRemorquageDto.getMarqueVoiture());
+         if(demandeRemorquageDto.getNbrePersonnes()!=null) demandeRemorquage.setNbrePersonnes(demandeRemorquageDto.getNbrePersonnes());
+         if(demandeRemorquageDto.getTypePanne()!=null) demandeRemorquage.setTypePanne(demandeRemorquageDto.getTypePanne());
+         if(demandeRemorquageDto.getTypeRemorquage() !=null) demandeRemorquage.setTypeRemorquage(demandeRemorquageDto.getTypeRemorquage());
 
-       List<DemandeRemorquage> listeDemandeRemorquage = new ArrayList<>();
-       listeDemandeRemorquage.add(demandeRemorquage);
+         Instant now = Instant.now();
+         demandeRemorquage.setDateCreation(Timestamp.from(now));
 
-       entity.setListeDemandesRemorquage(listeDemandeRemorquage);
+         Location depart = new Location(demandeRemorquageDto.getDepartLattitude(), demandeRemorquageDto.getDepartLongitude());
+         // depart.setDemandeRemorquageDepart(demandeRemorquage);
+         Location destination = new Location(demandeRemorquageDto.getDestinationLattitude(), demandeRemorquageDto.getDestinationLongitude());
+//       destination.setDemandeRemorquageDestination(demandeRemorquage);
 
-       demandeRemorquageRepository.save(demandeRemorquage);
-       //consommateurService.saveOrUpdateConsommateur(entity);
-       return ResponseEntity.status(HttpStatus.OK).body(demandeRemorquage);
+         demandeRemorquage.setDepartRemorquage(depart);
+         demandeRemorquage.setDestinationRemorquage(destination);
+
+         List<DemandeRemorquage> listeDemandeRemorquage = new ArrayList<>();
+         listeDemandeRemorquage.add(demandeRemorquage);
+
+         entity.setListeDemandesRemorquage(listeDemandeRemorquage);
+
+         demandeRemorquageRepository.save(demandeRemorquage);
+         //consommateurService.saveOrUpdateConsommateur(entity);
+         return ResponseEntity.status(HttpStatus.OK).body(demandeRemorquage);
      }
      catch (Exception e) {
        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("erreur");
@@ -67,6 +89,23 @@ public class DemandeRemorquageController {
 
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("erreur ");
 
+  }
+
+  @GetMapping("/verifierPossibiliteChangementRemorqueur/{idDemande}")
+  public ResponseEntity<Object> VerifierPermissionChangementRemorqueur(@PathVariable  Long idDemande) {
+    if(idDemande != null) {
+      try {
+        VerificationChangementRemorqeurResponse resVerif = demandeRemorquageService.permettreChangementRemorqueur(idDemande);
+
+        return ResponseEntity.status(HttpStatus.OK).body(resVerif);
+      }
+      catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("erreur");
+      }
+
+    }
+
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("l'id demande ne peut pas étre null");
   }
 
   @PutMapping("/annulerDemandeParClient/{idDemande}")
@@ -134,22 +173,32 @@ public class DemandeRemorquageController {
 
   }
 
-  @PostMapping("/accepterDemande/{idDemande}/{idRemorqeur}")
-  public ResponseEntity<Object> accepterDemande(@PathVariable Long idDemande ,@PathVariable Long idRemorqeur ) {
-   if(idDemande != null && idRemorqeur != null ) {
-     Optional<Remorqueur> remorqueur  = remorqueurService.getRemorqueur(idRemorqeur);
-     Optional<DemandeRemorquage> demande  = demandeRemorquageRepository.findById(idDemande);
+  @PutMapping("/accepterDemande/")
+  public ResponseEntity<Object> accepterDemande(@RequestBody DemandeRemorquageAccepteDto demandeRemorquageAccepteDto) {
+   if(demandeRemorquageAccepteDto.getIdDemande() != null && demandeRemorquageAccepteDto.getIdRemorqeur() != null ) {
+     Optional<Remorqueur> remorqueur  = remorqueurService.getRemorqueur(demandeRemorquageAccepteDto.getIdRemorqeur() );
+     Optional<DemandeRemorquage> demande  = demandeRemorquageRepository.findById(demandeRemorquageAccepteDto.getIdDemande());
 
-     if(remorqueur.get() !=null  && demande.get() !=null   ) {
+     try {
+       Instant now = Instant.now();
+       Timestamp dateAcceptation = Timestamp.from(now);
+
        demande.get().setRemorqueur(remorqueur.get());
        demande.get().setIsDeclined(false);
+       demande.get().setDurreeInMinutes(demandeRemorquageAccepteDto.getDureeInMin());
+       demande.get().setDateAcceptation(dateAcceptation);
+
        demandeRemorquageRepository.save(demande.get());
        return ResponseEntity.status(HttpStatus.OK).body(demande);
      }
+     catch (Exception e) {
+       return ResponseEntity.status(HttpStatus.NOT_FOUND).body("erreur");
+     }
+
    }
 
 
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("erreur");
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("idDemande et idRemorqeur ne peuvent pas étre null");
   }
 
  @PostMapping("/finirCourse/{idDemande}/{isFinished}")
@@ -184,34 +233,25 @@ public class DemandeRemorquageController {
     return ResponseEntity.status(HttpStatus.OK).body("error");
   }
 
-  @PostMapping("/declineDemande/{idConsommateur}/{idRemorqeur}/{idDemande}")
+  @PutMapping("/declineDemande/{idRemorqeur}/{idDemande}")
   //@PreAuthorize("hasRole('REMORQEUR')")
-  public ResponseEntity< Object > declineDemande(@PathVariable Long idConsommateur ,@PathVariable Long idRemorqeur ,@PathVariable Long idDemande  ) {
-    if(idConsommateur != null && idRemorqeur != null && idDemande != null) {
-      Optional<Consommateur> consommateur = consommateurService.getConsommateur(idConsommateur);
-      Optional<Remorqueur> remorqueur = remorqueurService.getRemorqueur(idRemorqeur);
-
-      if (consommateur.get() != null) {
+  public ResponseEntity< Object > declineDemande(@PathVariable Long idRemorqeur ,@PathVariable Long idDemande  ) {
+    if( idRemorqeur != null && idDemande != null) {
 
         try {
-          List<DemandeRemorquage> liste = consommateur.get().getListeDemandesRemorquage();
 
-          for (DemandeRemorquage d : liste) {
-            if (d.getId() == idDemande) {
+            Remorqueur remorqueur = remorqueurService.getRemorqueur(idRemorqeur).get();
+            DemandeRemorquage demandeRemorquage = demandeRemorquageRepository.findById(idDemande).get();
 
-              d.setIsDeclined(true);
-              d.setRemorqueur(remorqueur.get());
-
-            }
-          }
-
-          consommateur.get().setListeDemandesRemorquage(liste);
-          consommateurService.saveOrUpdateConsommateur(consommateur.get());
+            remorqueur.getListeDemandesRemorquage().add(demandeRemorquage);
+            demandeRemorquage.setRemorqueur(remorqueur);
+            demandeRemorquage.setIsDeclined(true);
+            demandeRemorquageRepository.save(demandeRemorquage);
           return ResponseEntity.status(HttpStatus.OK).body("succes");
         } catch (Exception e) {
           return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("echec");
         }
-      }
+
     }
 
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("verifier l'id de la demande");

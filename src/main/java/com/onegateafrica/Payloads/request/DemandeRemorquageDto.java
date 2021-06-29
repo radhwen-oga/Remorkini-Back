@@ -15,5 +15,11 @@ public class DemandeRemorquageDto {
   private String marqueVoiture;
   private String nbrePersonnes ;
   private String typePanne ;
+  private String typeRemorquage ;
 
+  private double departLattitude ;
+  private double departLongitude ;
+
+  private double destinationLattitude ;
+  private double destinationLongitude ;
 }

@@ -9,6 +9,7 @@ import org.hibernate.annotations.Fetch;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.sql.Timestamp;
 
 @Data
 @NoArgsConstructor
@@ -50,6 +51,25 @@ public class DemandeRemorquage implements Serializable {
 
   @Column(name = "canceledbyclient")
   private Boolean isCanceledByClient ;
+
+  @Column(name="datecreation")
+  private Timestamp dateCreation ;
+
+  @Column(name="dateacceptation")
+  private Timestamp dateAcceptation ;
+
+  @Column(name="durreinmin")
+  private long DurreeInMinutes=0 ;
+
+  @OneToOne(cascade = CascadeType.ALL)
+  @JoinColumn(name = "departRemorquage")
+  private Location departRemorquage ;
+
+  @OneToOne(cascade = CascadeType.ALL )
+  @JoinColumn(name = "destinationRemorquage")
+  private Location destinationRemorquage ;
+
+  private String typeRemorquage ;
 
 
 

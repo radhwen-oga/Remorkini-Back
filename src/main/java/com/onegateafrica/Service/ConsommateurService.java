@@ -1,5 +1,6 @@
 package com.onegateafrica.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,6 +23,8 @@ public interface ConsommateurService {
 
 	 Optional<Consommateur> getConsommateurByEmail(String Email);
 
+	 int keepAlive(String email);
+	 int kill();
 
 
 }
