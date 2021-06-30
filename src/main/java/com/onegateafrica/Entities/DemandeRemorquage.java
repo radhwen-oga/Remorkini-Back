@@ -78,6 +78,11 @@ public class DemandeRemorquage implements Serializable {
 
   private String typeRemorquage ;
 
+  @Column(name="canceledbyremorqueur")
+  private Boolean isCanceledByRemorqueur ;
+
+  private Integer urgenceDemande =0;
+
 
 
 

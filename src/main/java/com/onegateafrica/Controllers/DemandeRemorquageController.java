@@ -324,4 +324,41 @@ public class DemandeRemorquageController {
 
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("l'id de la demande ne peut pas étre null") ;
   }
+
+
+  @PutMapping("/annulerDemandeDuRemorqueur/{idDemande}/{raison}")
+  public ResponseEntity<Object> annulerCommandeRemorquageDuRemorqueur (@PathVariable Long idDemande ,@PathVariable String raison) {
+
+      if(idDemande != null && raison !=null) {
+          try {
+              DemandeRemorquage demandeRemorquage = demandeRemorquageRepository.findById(idDemande).get();
+              Remorqueur remorqueurRefuse = demandeRemorquage.getRemorqueur();
+              DemandeRemorqeurChangeParClient demandeRemorqeurChangeParClient = new DemandeRemorqeurChangeParClient();
+              demandeRemorqeurChangeParClient.setDemande(demandeRemorquage);
+              demandeRemorqeurChangeParClient.setRemorqeurRefuse(remorqueurRefuse);
+              demandeRemorqeurChangeParClient.setRaisonChangement(raison);
+
+
+
+              demandeRemorquage.getListeDemandesRemorquageChangesParClient().add(demandeRemorqeurChangeParClient);
+              demandeRemorquage.setRemorqueur(null);
+              demandeRemorquage.setDurreeInMinutes(0);
+              demandeRemorquage.setDateAcceptation(null);
+
+              demandeRemorquage.setIsDeclined(null);
+              demandeRemorquage.setIsCanceledByRemorqueur(true);
+              if(demandeRemorquage.getUrgenceDemande() != null ) demandeRemorquage.setUrgenceDemande(demandeRemorquage.getUrgenceDemande()+1);
+              demandeRemorquageRepository.save(demandeRemorquage);
+
+              return ResponseEntity.status(HttpStatus.OK).body(demandeRemorquage);
+
+          }
+          catch (Exception e) {
+              return ResponseEntity.status(HttpStatus.NOT_FOUND).body("erreur");
+          }
+      }
+
+
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("l'id de la demande et la raison ne peuvent pas étre null");
+  }
   }
