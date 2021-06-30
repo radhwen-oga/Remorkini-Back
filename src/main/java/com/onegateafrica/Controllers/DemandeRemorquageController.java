@@ -1,9 +1,6 @@
 package com.onegateafrica.Controllers;
 
-import com.onegateafrica.Entities.Consommateur;
-import com.onegateafrica.Entities.DemandeRemorquage;
-import com.onegateafrica.Entities.Location;
-import com.onegateafrica.Entities.Remorqueur;
+import com.onegateafrica.Entities.*;
 import com.onegateafrica.Payloads.request.DemandeRemorquageAccepteDto;
 import com.onegateafrica.Payloads.request.DemandeRemorquageDto;
 import com.onegateafrica.Payloads.response.VerificationChangementRemorqeurResponse;
@@ -161,7 +158,20 @@ public class DemandeRemorquageController {
       //
       List<DemandeRemorquage> liste = new ArrayList<>();
       for (DemandeRemorquage d:listeDemandeRemorquage ) {
-        if(d.getRemorqueur() == null || (d.getRemorqueur().getId() != idRemorqeur &&  d.getIsDeclined())) liste.add(d);
+        if(d.getRemorqueur() == null || (d.getRemorqueur().getId() != idRemorqeur &&  d.getIsDeclined())) {
+            //vérification de la liste des remorqueurs annulés de cette demande
+            if(d.getListeDemandesRemorquageChangesParClient().size()> 0) {
+                boolean res =demandeRemorquageService.VerfierExisistanceRemorqueurDansListeDesRefuse(d ,idRemorqeur);
+
+                if(!res) liste.add(d);
+            }
+            else {
+                liste.add(d);
+            }
+
+
+
+        }
       }
       return ResponseEntity.status(HttpStatus.OK).body(liste);
     }
@@ -187,6 +197,7 @@ public class DemandeRemorquageController {
        demande.get().setIsDeclined(false);
        demande.get().setDurreeInMinutes(demandeRemorquageAccepteDto.getDureeInMin());
        demande.get().setDateAcceptation(dateAcceptation);
+       demande.get().setIsdemandeChangedByClient(false);
 
        demandeRemorquageRepository.save(demande.get());
        return ResponseEntity.status(HttpStatus.OK).body(demande);
@@ -255,5 +266,62 @@ public class DemandeRemorquageController {
     }
 
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("verifier l'id de la demande");
+  }
+
+
+
+  @PutMapping("/changerRemorqeur/{idDemande}")
+  public ResponseEntity<Object> changerRemorqeur(@PathVariable Long idDemande) {
+      if(idDemande != null) {
+          try {
+              DemandeRemorquage demandeRemorquage = demandeRemorquageRepository.findById(idDemande).get();
+              Remorqueur remorqueurRefuse = demandeRemorquage.getRemorqueur();
+              DemandeRemorqeurChangeParClient demandeRemorqeurChangeParClient = new DemandeRemorqeurChangeParClient();
+              demandeRemorqeurChangeParClient.setDemande(demandeRemorquage);
+              demandeRemorqeurChangeParClient.setRemorqeurRefuse(remorqueurRefuse);
+              demandeRemorqeurChangeParClient.setRaisonChangement("retard");
+
+
+
+              demandeRemorquage.getListeDemandesRemorquageChangesParClient().add(demandeRemorqeurChangeParClient);
+              demandeRemorquage.setRemorqueur(null);
+              demandeRemorquage.setDurreeInMinutes(0);
+              demandeRemorquage.setDateAcceptation(null);
+
+              demandeRemorquage.setIsDeclined(null);
+              demandeRemorquage.setIsdemandeChangedByClient(true);
+              demandeRemorquageRepository.save(demandeRemorquage);
+
+
+
+              //2)-------- ajouter et affecter la reclamation au remorqeur en question
+
+              Reclamation reclamation = new Reclamation() ;
+              //if(!reclamationDto.getDescription().isEmpty()) reclamation.setDescription(reclamationDto.getDescription());
+              reclamation.setRemorqueur(remorqueurRefuse);
+              reclamation.setTypeReclamation(ETypeReclamation.RETARD);
+
+              Instant today = Instant.now();
+
+              reclamation.setDateAjout( Timestamp.from(today));
+
+              remorqueurRefuse.getListeReclamations().add(reclamation);
+
+
+              remorqueurService.saveOrUpdateRemorqueur(remorqueurRefuse);
+
+              return ResponseEntity.status(HttpStatus.OK).body(demandeRemorquage) ;
+          }
+          catch (Exception e) {
+              return ResponseEntity.status(HttpStatus.NOT_FOUND).body("erreur") ;
+          }
+
+      }
+
+
+
+
+
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("l'id de la demande ne peut pas étre null") ;
   }
   }
