@@ -375,7 +375,10 @@ public class DemandeRemorquageController {
 
               demandeRemorquage.getDepartRemorquage().setLongitude(longitude);
               demandeRemorquage.getDepartRemorquage().setLattitude(latitude);
-              demandeRemorquage.setUrgenceDemande(demandeRemorquage.getUrgenceDemande()+1);
+              demandeRemorquage.setIsdemandeChangedByClient(false);
+              demandeRemorquage.setIsClientPickedUp(false);
+              demandeRemorquage.setIsCanceledByRemorqueur(false);
+              //demandeRemorquage.setUrgenceDemande(demandeRemorquage.getUrgenceDemande()+1);
               demandeRemorquageRepository.save(demandeRemorquage);
               return ResponseEntity.status(HttpStatus.OK).body(demandeRemorquage);
           }
