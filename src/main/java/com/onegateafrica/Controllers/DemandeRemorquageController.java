@@ -367,7 +367,7 @@ public class DemandeRemorquageController {
 
 
   @PutMapping("/updateDemandeApresAnnulationRemorqeur/{idDemande}/{longitude}/{latitude}")
-  public ResponseEntity<Object> updateCoordonnesCommandeRemorquageEt (@PathVariable Long idDemande, @PathVariable Double longitude ,@PathVariable Double latitude) {
+  public ResponseEntity<Object> updateCoordonnesCommandeRemorquageApresPickedUp (@PathVariable Long idDemande, @PathVariable Double longitude ,@PathVariable Double latitude) {
 
       if(idDemande != null && longitude!=null && latitude !=null) {
           try{
@@ -391,5 +391,29 @@ public class DemandeRemorquageController {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("l'id demande et les coordonnes ne peuvent pas étre null");
 
   }
+
+    @PutMapping("/updateDemandeApresAnnulationRemorqeurAvantPickedUp/{idDemande}")
+    public ResponseEntity<Object> updateCoordonnesCommandeRemorquageAvantPickedUp (@PathVariable Long idDemande) {
+
+        if(idDemande != null ) {
+            try{
+                DemandeRemorquage demandeRemorquage = demandeRemorquageRepository.findById(idDemande).get();
+
+                demandeRemorquage.setIsdemandeChangedByClient(false);
+                demandeRemorquage.setIsClientPickedUp(false);
+                demandeRemorquage.setIsCanceledByRemorqueur(false);
+                //demandeRemorquage.setUrgenceDemande(demandeRemorquage.getUrgenceDemande()+1);
+                demandeRemorquageRepository.save(demandeRemorquage);
+                return ResponseEntity.status(HttpStatus.OK).body(demandeRemorquage);
+            }
+            catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("erreur");
+            }
+
+        }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("l'id demande ne peut pas étre null");
+
+    }
 
   }
