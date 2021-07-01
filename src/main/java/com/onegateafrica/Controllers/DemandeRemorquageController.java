@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.spec.ECField;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -198,6 +199,8 @@ public class DemandeRemorquageController {
        demande.get().setDurreeInMinutes(demandeRemorquageAccepteDto.getDureeInMin());
        demande.get().setDateAcceptation(dateAcceptation);
        demande.get().setIsdemandeChangedByClient(false);
+       demande.get().setIsClientPickedUp(false);
+       demande.get().setIsCanceledByRemorqueur(false);
 
        demandeRemorquageRepository.save(demande.get());
        return ResponseEntity.status(HttpStatus.OK).body(demande);
@@ -361,4 +364,29 @@ public class DemandeRemorquageController {
 
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("l'id de la demande et la raison ne peuvent pas étre null");
   }
+
+
+  @PutMapping("/updateDemandeApresAnnulationRemorqeur/{idDemande}/{longitude}/{latitude}")
+  public ResponseEntity<Object> updateCoordonnesCommandeRemorquageEt (@PathVariable Long idDemande, @PathVariable Double longitude ,@PathVariable Double latitude) {
+
+      if(idDemande != null && longitude!=null && latitude !=null) {
+          try{
+              DemandeRemorquage demandeRemorquage = demandeRemorquageRepository.findById(idDemande).get();
+
+              demandeRemorquage.getDepartRemorquage().setLongitude(longitude);
+              demandeRemorquage.getDepartRemorquage().setLattitude(latitude);
+              demandeRemorquage.setUrgenceDemande(demandeRemorquage.getUrgenceDemande()+1);
+              demandeRemorquageRepository.save(demandeRemorquage);
+              return ResponseEntity.status(HttpStatus.OK).body(demandeRemorquage);
+          }
+          catch (Exception e) {
+              return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("erreur");
+          }
+
+      }
+
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("l'id demande et les coordonnes ne peuvent pas étre null");
+
+  }
+
   }
