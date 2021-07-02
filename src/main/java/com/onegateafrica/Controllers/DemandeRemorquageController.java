@@ -62,6 +62,7 @@ public class DemandeRemorquageController {
 
          Instant now = Instant.now();
          demandeRemorquage.setDateCreation(Timestamp.from(now));
+         demandeRemorquage.setIsCanceledByClient(false);
 
          Location depart = new Location(demandeRemorquageDto.getDepartLattitude(), demandeRemorquageDto.getDepartLongitude());
          // depart.setDemandeRemorquageDepart(demandeRemorquage);
@@ -159,16 +160,23 @@ public class DemandeRemorquageController {
       //
       List<DemandeRemorquage> liste = new ArrayList<>();
       for (DemandeRemorquage d:listeDemandeRemorquage ) {
-        if(d.getRemorqueur() == null || (d.getRemorqueur().getId() != idRemorqeur &&  d.getIsDeclined())) {
-            //vérification de la liste des remorqueurs annulés de cette demande
-            if(d.getListeDemandesRemorquageChangesParClient().size()> 0) {
-                boolean res =demandeRemorquageService.VerfierExisistanceRemorqueurDansListeDesRefuse(d ,idRemorqeur);
 
-                if(!res) liste.add(d);
+
+                //if remorqeur == null ou un remorqeur a refusé cette demande
+          if((d.getRemorqueur() == null) || (d.getRemorqueur().getId() != idRemorqeur  && d.getIsDeclined())) {
+            //vérification de la liste des remorqueurs annulés de cette demande
+
+            if(!d.getIsCanceledByClient()) {
+                if(d.getListeDemandesRemorquageChangesParClient().size()> 0) {
+                    boolean res =demandeRemorquageService.VerfierExisistanceRemorqueurDansListeDesRefuse(d ,idRemorqeur);
+
+                    if(!res) liste.add(d);
+                }
+                else {
+                    liste.add(d);
+                }
             }
-            else {
-                liste.add(d);
-            }
+
 
 
 
