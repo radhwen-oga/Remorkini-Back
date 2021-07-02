@@ -75,6 +75,9 @@ public class DemandeRemorquage implements Serializable {
 
   private Boolean isdemandeChangedByClient ;
 
+  @Column(name = "adresseDepartReachedByRemorqueur")
+  private Boolean isAdresseDepartReachedByRemorqueur ;
+
 
   private String typeRemorquage ;
 

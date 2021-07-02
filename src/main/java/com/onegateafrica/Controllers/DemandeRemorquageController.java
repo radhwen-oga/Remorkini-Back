@@ -209,6 +209,7 @@ public class DemandeRemorquageController {
        demande.get().setIsdemandeChangedByClient(false);
        demande.get().setIsClientPickedUp(false);
        demande.get().setIsCanceledByRemorqueur(false);
+       demande.get().setIsAdresseDepartReachedByRemorqueur(false);
 
        demandeRemorquageRepository.save(demande.get());
        return ResponseEntity.status(HttpStatus.OK).body(demande);
@@ -239,12 +240,14 @@ public class DemandeRemorquageController {
     return ResponseEntity.status(HttpStatus.OK).body("error");
  }
 
-  @PostMapping("/updateCourse/{idDemande}/{isClientPickedUp}")
-  public  ResponseEntity<Object> updateCourse (@PathVariable Long idDemande , @PathVariable Boolean isClientPickedUp) {
-    if(idDemande != null && isClientPickedUp != null) {
+  @PutMapping("/confirmerPickedUp/{idDemande}")
+  public  ResponseEntity<Object> updateCourse (@PathVariable Long idDemande ) {
+    if(idDemande != null ) {
       try{
         Optional<DemandeRemorquage> demandeRemorquage = demandeRemorquageRepository.findById(idDemande);
-        demandeRemorquage.get().setIsClientPickedUp(isClientPickedUp);
+        demandeRemorquage.get().setIsClientPickedUp(true);
+        demandeRemorquage.get().setIsAdresseDepartReachedByRemorqueur(false);
+
         demandeRemorquageRepository.save(demandeRemorquage.get());
         return ResponseEntity.status(HttpStatus.OK).body(demandeRemorquage.get());
       }
@@ -252,7 +255,7 @@ public class DemandeRemorquageController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("error");
       }
     }
-    return ResponseEntity.status(HttpStatus.OK).body("error");
+    return ResponseEntity.status(HttpStatus.OK).body("l'id demande ne peut pas étre null");
   }
 
   @PutMapping("/declineDemande/{idRemorqeur}/{idDemande}")
@@ -301,6 +304,7 @@ public class DemandeRemorquageController {
 
               demandeRemorquage.setIsDeclined(null);
               demandeRemorquage.setIsdemandeChangedByClient(true);
+              demandeRemorquage.setIsAdresseDepartReachedByRemorqueur(false);
               demandeRemorquageRepository.save(demandeRemorquage);
 
 
@@ -358,6 +362,7 @@ public class DemandeRemorquageController {
 
               demandeRemorquage.setIsDeclined(null);
               demandeRemorquage.setIsCanceledByRemorqueur(true);
+
               if(demandeRemorquage.getUrgenceDemande() != null ) demandeRemorquage.setUrgenceDemande(demandeRemorquage.getUrgenceDemande()+1);
               demandeRemorquageRepository.save(demandeRemorquage);
 
