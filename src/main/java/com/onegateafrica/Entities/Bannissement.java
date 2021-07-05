@@ -38,5 +38,9 @@ public class Bannissement {
     @ManyToOne
     private Remorqueur remorqueur ;
 
+    @JsonIgnore
+    @ManyToOne
+    private Consommateur consommateur ;
+
 
 }

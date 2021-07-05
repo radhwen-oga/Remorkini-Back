@@ -48,4 +48,14 @@ public class Consommateur extends User {
     private Assurance assurance ;
 
 
+    @OneToMany(fetch =FetchType.LAZY ,mappedBy = "consommateur",cascade = CascadeType.ALL)
+    private List<Reclamation> listeReclamations ;
+
+    @OneToMany(fetch =FetchType.LAZY ,mappedBy = "consommateur",cascade = CascadeType.ALL)
+    private List<Bannissement> listeBannissements ;
+
+    @Column(name="is_banned")
+    private Boolean isBanned =false ;
+
+
 }

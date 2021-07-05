@@ -224,20 +224,20 @@ public class DemandeRemorquageController {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("idDemande et idRemorqeur ne peuvent pas étre null");
   }
 
- @PostMapping("/finirCourse/{idDemande}/{isFinished}")
- public  ResponseEntity<Object> finirCourse (@PathVariable Long idDemande , @PathVariable Boolean isFinished) {
-    if(idDemande != null && isFinished != null) {
+ @PutMapping("/finirCourse/{idDemande}")
+ public  ResponseEntity<Object> finirCourse (@PathVariable Long idDemande) {
+    if(idDemande != null) {
       try{
-        Optional<DemandeRemorquage> demandeRemorquage = demandeRemorquageRepository.findById(idDemande);
-        demandeRemorquage.get().setIsFinished(isFinished);
-        demandeRemorquageRepository.save(demandeRemorquage.get());
-        return ResponseEntity.status(HttpStatus.OK).body(demandeRemorquage.get());
+        DemandeRemorquage demandeRemorquage = demandeRemorquageRepository.findById(idDemande).get();
+        demandeRemorquage.setIsFinished(true);
+        demandeRemorquageRepository.save(demandeRemorquage);
+        return ResponseEntity.status(HttpStatus.OK).body(demandeRemorquage);
       }
       catch (Exception e){
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("error");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("erreur");
       }
     }
-    return ResponseEntity.status(HttpStatus.OK).body("error");
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("l'id de la demande ne peut pas étre null");
  }
 
   @PutMapping("/confirmerPickedUp/{idDemande}")
