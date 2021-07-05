@@ -182,9 +182,9 @@ public class DemandeRemorquageController {
       }
     // organiser la liste du plus urgent au moins urgent
         Collections.sort(liste, Collections.reverseOrder(new DemandeRemorquage.UrgenceComparator()));
-      for(DemandeRemorquage d : liste) {
-          System.out.println(d.getId() +" "+d.getUrgenceDemande());
-      }
+//      for(DemandeRemorquage d : liste) {
+//          System.out.println(d.getId() +" "+d.getUrgenceDemande());
+//      }
       return ResponseEntity.status(HttpStatus.OK).body(liste);
     }
 
