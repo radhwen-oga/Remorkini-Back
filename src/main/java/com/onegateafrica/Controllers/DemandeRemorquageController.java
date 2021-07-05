@@ -8,6 +8,7 @@ import com.onegateafrica.Repositories.DemandeRemorquageRepository;
 import com.onegateafrica.Service.ConsommateurService;
 import com.onegateafrica.Service.DemandeRemorquageService;
 import com.onegateafrica.Service.RemorqueurService;
+import org.checkerframework.checker.units.qual.C;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,10 +18,7 @@ import java.security.spec.ECField;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 
 @CrossOrigin(origins = "*")
@@ -181,6 +179,11 @@ public class DemandeRemorquageController {
 
 
         }
+      }
+    // organiser la liste du plus urgent au moins urgent
+        Collections.sort(liste, Collections.reverseOrder(new DemandeRemorquage.UrgenceComparator()));
+      for(DemandeRemorquage d : liste) {
+          System.out.println(d.getId() +" "+d.getUrgenceDemande());
       }
       return ResponseEntity.status(HttpStatus.OK).body(liste);
     }

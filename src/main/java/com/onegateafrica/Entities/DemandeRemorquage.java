@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.Comparator;
 import java.util.List;
 
 @Data
@@ -88,6 +89,18 @@ public class DemandeRemorquage implements Serializable {
 
   private Integer urgenceDemande =0;
 
+
+
+
+  public static class UrgenceComparator implements Comparator<DemandeRemorquage>
+  {
+    //    @Override
+    public int compare(DemandeRemorquage d1, DemandeRemorquage d2) {
+      return d1.getUrgenceDemande().compareTo(d2.getUrgenceDemande());
+    }
+
+
+  }
 
 
 
