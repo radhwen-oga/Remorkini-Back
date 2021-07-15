@@ -1,10 +1,13 @@
 package com.onegateafrica.Controllers;
 
 import com.onegateafrica.Controllers.utils.IntervalWeekUtils;
+import com.onegateafrica.Entities.Consommateur;
 import com.onegateafrica.Entities.Reclamation;
 import com.onegateafrica.Entities.Remorqueur;
+import com.onegateafrica.Payloads.request.ReclamationClientDto;
 import com.onegateafrica.Payloads.request.ReclamationDto;
 import com.onegateafrica.Service.BannissementService;
+import com.onegateafrica.Service.ConsommateurService;
 import com.onegateafrica.Service.ReclamationService;
 import com.onegateafrica.Service.RemorqueurService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 
 @CrossOrigin(origins = "*")
@@ -25,12 +27,14 @@ public class ReclamationController {
     private final ReclamationService reclamationService ;
     private final RemorqueurService remorqueurService ;
     private final BannissementService bannissementService ;
+    private final ConsommateurService consommateurService ;
 
     @Autowired
-    public ReclamationController(ReclamationService reclamationService, RemorqueurService remorqueurService, BannissementService bannissementService) {
+    public ReclamationController(ReclamationService reclamationService, RemorqueurService remorqueurService, BannissementService bannissementService, ConsommateurService consommateurService) {
         this.reclamationService = reclamationService;
         this.remorqueurService = remorqueurService;
         this.bannissementService = bannissementService;
+        this.consommateurService = consommateurService;
     }
 
     @PostMapping("/ajouterReclamation")
@@ -75,6 +79,42 @@ public class ReclamationController {
             }
             catch (Exception e){
              return ResponseEntity.status(HttpStatus.NOT_FOUND).body("erreur ");
+            }
+
+
+        }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("vérifiez les données passés");
+    }
+
+
+    @PostMapping("/ajouterReclamationAuClient")
+    public ResponseEntity<Object> ajouterReclamationAuClient (@RequestBody ReclamationClientDto reclamationClientDto) {
+        if(reclamationClientDto !=null && reclamationClientDto.getIdConsommateur() !=null && reclamationClientDto.getDescription() !=null){
+            Consommateur consommateur ;
+
+            try {
+                //1)-------- ajouter et affecter la reclamation au consommateur en question
+                consommateur = consommateurService.getConsommateur(reclamationClientDto.getIdConsommateur()).get();
+                Reclamation reclamation = new Reclamation() ;
+                if(!reclamationClientDto.getDescription().isEmpty()) reclamation.setDescription(reclamationClientDto.getDescription());
+                reclamation.setConsommateur(consommateur);
+
+                Instant today = Instant.now();
+
+                reclamation.setDateAjout( Timestamp.from(today));
+
+                consommateur.getListeReclamations().add(reclamation);
+
+                consommateurService.saveOrUpdateConsommateur(consommateur);
+
+
+
+                return ResponseEntity.status(HttpStatus.OK).body("reclamation ajouté avec succés");
+
+            }
+            catch (Exception e){
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("erreur ");
             }
 
 

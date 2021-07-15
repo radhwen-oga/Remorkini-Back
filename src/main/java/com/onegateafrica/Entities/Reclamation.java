@@ -36,4 +36,8 @@ public class Reclamation {
     @ManyToOne
     private Remorqueur remorqueur;
 
+    @JsonIgnore
+    @ManyToOne
+    private Consommateur consommateur;
+
 }
