@@ -31,6 +31,9 @@ public class Conversation {
     @Column
     private Date lastActivity;
 
+    @OneToOne
+    private Message lastMessage;
+
     @JsonIgnore
     @OneToMany(fetch= FetchType.LAZY, mappedBy = "conversation")
     private List<Message> messages;
