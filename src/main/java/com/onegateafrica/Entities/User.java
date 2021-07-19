@@ -44,7 +44,7 @@ public abstract class User {
 
 	@Column(name="is_activated")
 	private boolean isActivated=true;
-
+	//to delete
 	@Column(name="is_blocked")
 	private boolean isBlocked=false;
 	@Column(name="is_connected")
