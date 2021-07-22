@@ -40,6 +40,27 @@ public class DemandeRemorquageController {
     this.consommateurService = consommateurService;
   }
 
+  @GetMapping("/getLastCommandeAssurance/{idRemorqueur}")
+  public ResponseEntity<Object> getCommandeRemorquageAssurance(@PathVariable Long idRemorqueur){
+      if(idRemorqueur !=null) {
+          try {
+              List<DemandeRemorquage> listDemande = demandeRemorquageRepository.findAll();
+              DemandeRemorquage commandeAenvoyer = new DemandeRemorquage();
+              for(DemandeRemorquage d : listDemande){
+                  if(d.getRemorqueur().getId() == idRemorqueur && (d.getIsFinished() ==null || !d.getIsFinished()) ) {
+                      commandeAenvoyer = d ;
+                      break;
+                  }
+              }
+              return ResponseEntity.status(HttpStatus.OK).body(commandeAenvoyer);
+          }
+          catch (Exception e) {
+              return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("erreur");
+          }
+      }
+
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("erreur");
+  }
   @PostMapping("/addDemande")
   //@PreAuthorize("hasRole('CONSOMMATEUR')")
   public ResponseEntity< Object > addDemandeRemorquage(@RequestBody DemandeRemorquageDto demandeRemorquageDto){
