@@ -92,4 +92,6 @@ public  class Remorqueur implements Serializable {
 
   @OneToMany(fetch = FetchType.LAZY, mappedBy = "RemorqeurRefuse",cascade = CascadeType.ALL  )
   private List<DemandeRemorqeurChangeParClient> listeDemandesRemorquageChangeParClient ;
+
+  private boolean isCommandeAssuranceAffected ;
 }

@@ -56,7 +56,44 @@ public class DemandeRemorquageController {
          if(demandeRemorquageDto.getMarqueVoiture() !=null) demandeRemorquage.setMarqueVoiture(demandeRemorquageDto.getMarqueVoiture());
          if(demandeRemorquageDto.getNbrePersonnes()!=null) demandeRemorquage.setNbrePersonnes(demandeRemorquageDto.getNbrePersonnes());
          if(demandeRemorquageDto.getTypePanne()!=null) demandeRemorquage.setTypePanne(demandeRemorquageDto.getTypePanne());
-         if(demandeRemorquageDto.getTypeRemorquage() !=null) demandeRemorquage.setTypeRemorquage(demandeRemorquageDto.getTypeRemorquage());
+
+         if(demandeRemorquageDto.getTypeRemorquage() !=null && demandeRemorquageDto.getTypeRemorquage().equals("assurance")) {
+             demandeRemorquage.setTypeRemorquage(demandeRemorquageDto.getTypeRemorquage());
+
+             //affecter à un remorqueur d'assurance
+             List<Remorqueur> remoqueurListe = remorqueurService.getRemorqueurs() ;
+             List<Remorqueur> remorqueurAssuranceListe =new ArrayList<>();
+             for(Remorqueur r: remoqueurListe) {
+                 if( r.isDisponible() && r.getRemorqeurType().equals(RemorqeurType.ASSURANCE) ) {
+                     Instant now = Instant.now();
+                     Timestamp dateAcceptation = Timestamp.from(now);
+
+                     demandeRemorquage.setRemorqueur(r);
+                     //informer le remorqueur en question
+                     r.setCommandeAssuranceAffected(true);
+                     remorqueurService.saveOrUpdateRemorqueur(r);
+
+                     demandeRemorquage.setIsDeclined(false);
+
+                     //statique à changer avec une methode  de mise à jour de distance et duree pour remorqueur d'assurance
+                     demandeRemorquage.setDurreeInMinutes(3);
+
+                     demandeRemorquage.setDateAcceptation(dateAcceptation);
+                     demandeRemorquage.setIsdemandeChangedByClient(false);
+                     demandeRemorquage.setIsClientPickedUp(false);
+                     demandeRemorquage.setIsCanceledByRemorqueur(false);
+                     demandeRemorquage.setIsAdresseDepartReachedByRemorqueur(false);
+                     break ;
+                 }
+             }
+
+
+         }
+
+         if(demandeRemorquageDto.getTypeRemorquage() !=null && demandeRemorquageDto.getTypeRemorquage().equals("libre")) {
+             demandeRemorquage.setTypeRemorquage(demandeRemorquageDto.getTypeRemorquage());
+         }
+
 
          Instant now = Instant.now();
          demandeRemorquage.setDateCreation(Timestamp.from(now));
