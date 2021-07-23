@@ -47,10 +47,13 @@ public class DemandeRemorquageController {
               List<DemandeRemorquage> listDemande = demandeRemorquageRepository.findAll();
               DemandeRemorquage commandeAenvoyer = new DemandeRemorquage();
               for(DemandeRemorquage d : listDemande){
-                  if(d.getRemorqueur().getId() == idRemorqueur && (d.getIsFinished() ==null || !d.getIsFinished()) ) {
-                      commandeAenvoyer = d ;
-                      break;
+                  if(d.getRemorqueur() != null) {
+                      if( d.getRemorqueur().getId() == idRemorqueur && (d.getIsFinished() ==null || !d.getIsFinished()) ) {
+                          commandeAenvoyer = d ;
+                          break;
+                      }
                   }
+
               }
               return ResponseEntity.status(HttpStatus.OK).body(commandeAenvoyer);
           }
@@ -409,6 +412,14 @@ public class DemandeRemorquageController {
           try {
               DemandeRemorquage demandeRemorquage = demandeRemorquageRepository.findById(idDemande).get();
               Remorqueur remorqueurRefuse = demandeRemorquage.getRemorqueur();
+
+
+              if(demandeRemorquage.getTypeRemorquage().equalsIgnoreCase("assurance")) {
+                  remorqueurRefuse.setCommandeAssuranceAffected(false);
+              }
+              remorqueurService.saveOrUpdateRemorqueur(remorqueurRefuse);
+
+
               DemandeRemorqeurChangeParClient demandeRemorqeurChangeParClient = new DemandeRemorqeurChangeParClient();
               demandeRemorqeurChangeParClient.setDemande(demandeRemorquage);
               demandeRemorqeurChangeParClient.setRemorqeurRefuse(remorqueurRefuse);
@@ -425,6 +436,11 @@ public class DemandeRemorquageController {
               demandeRemorquage.setIsCanceledByRemorqueur(true);
 
               if(demandeRemorquage.getUrgenceDemande() != null ) demandeRemorquage.setUrgenceDemande(demandeRemorquage.getUrgenceDemande()+1);
+
+             //To Do : affecter a un remorqueur d'assurance si la commande est de type assurance
+
+
+              //remorqueurService.saveOrUpdateRemorqueur(remorqueurAffecte);
               demandeRemorquageRepository.save(demandeRemorquage);
 
               return ResponseEntity.status(HttpStatus.OK).body(demandeRemorquage);
