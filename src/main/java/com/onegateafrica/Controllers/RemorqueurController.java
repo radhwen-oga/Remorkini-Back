@@ -270,6 +270,31 @@ public class RemorqueurController {
 
     }
 
+    @PutMapping("/preciserCompteRemorqueurUitlise/{idRemorqueur}/{compteUtilise}")
+    private ResponseEntity<Object> mettreAjourCompteUtilise(@PathVariable Long idRemorqueur , @PathVariable String compteUtilise){
+        if(idRemorqueur !=null && compteUtilise !=null ){
+            try {
+                Remorqueur remorqueur = remorqueurService.getRemorqueur(idRemorqueur).get();
+                if(compteUtilise.equalsIgnoreCase("assurance")){
+                    remorqueur.setCompteAssurance(true);
+                    remorqueurService.saveOrUpdateRemorqueur(remorqueur);
+                    return ResponseEntity.status(HttpStatus.OK).body(remorqueur);
+                }
+
+                if(compteUtilise.equalsIgnoreCase("libre")){
+                    remorqueur.setCompteAssurance(false);
+                    remorqueurService.saveOrUpdateRemorqueur(remorqueur);
+                    return ResponseEntity.status(HttpStatus.OK).body(remorqueur);
+                }
+            }
+            catch (Exception e){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("erreur ");
+            }
+        }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("erreur ");
+    }
+
     @PutMapping("/modifierPositionVoiture/{idRemorqueur}")
     private ResponseEntity<Object> mettreAjourPositionVoiture(@PathVariable  Long idRemorqueur , @RequestBody PositionVoitureDto positionVoitureDto) {
         if(idRemorqueur !=null && positionVoitureDto !=null) {

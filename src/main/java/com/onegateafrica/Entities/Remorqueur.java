@@ -93,5 +93,14 @@ public  class Remorqueur implements Serializable {
   @OneToMany(fetch = FetchType.LAZY, mappedBy = "RemorqeurRefuse",cascade = CascadeType.ALL  )
   private List<DemandeRemorqeurChangeParClient> listeDemandesRemorquageChangeParClient ;
 
+
+  //utilisé pour informer le remorqueur d'assurance par une possible affectation
   private boolean isCommandeAssuranceAffected ;
+
+  //utilisé dans le cas ou un remorqueur a deux compte assurance /libre
+  //pour savoir celui utilisé
+  private boolean isCompteAssurance ;
+
+
+
 }
