@@ -81,6 +81,7 @@ public class DemandeRemorquageController {
          if(demandeRemorquageDto.getNbrePersonnes()!=null) demandeRemorquage.setNbrePersonnes(demandeRemorquageDto.getNbrePersonnes());
          if(demandeRemorquageDto.getTypePanne()!=null) demandeRemorquage.setTypePanne(demandeRemorquageDto.getTypePanne());
 
+         //affecter a un remorqueur assurance si la demande est assurance
          if(demandeRemorquageDto.getTypeRemorquage() !=null && demandeRemorquageDto.getTypeRemorquage().equals("assurance")) {
              demandeRemorquage.setTypeRemorquage(demandeRemorquageDto.getTypeRemorquage());
 
@@ -463,6 +464,63 @@ public class DemandeRemorquageController {
           try{
               DemandeRemorquage demandeRemorquage = demandeRemorquageRepository.findById(idDemande).get();
 
+              // a faire : si assurance affecter a un remorqeur disponible et non refuse de la demande
+                if(demandeRemorquage.getTypeRemorquage().equalsIgnoreCase("assurance")) {
+                    List<Remorqueur> listeRemorqeur = remorqueurService.getRemorqueurs() ;
+                    List<Remorqueur> listeRemorqueurAssurance = new ArrayList<>();
+
+                    //get la liste des remorqueurs assurance
+                    for(Remorqueur r : listeRemorqeur) {
+                        Set<Role> listeRoles = r.getConsommateur().getRoles();
+                        for(Role ro : listeRoles) {
+                            if(ro.getRoleName().equals(ERole.ROLE_REMORQUEUR_ASSURANCE)) {
+                                listeRemorqueurAssurance.add(r);
+                            }
+                        }
+
+                    }
+
+                    Remorqueur remorqueurAssuranceEnCharge = new Remorqueur();
+                    for(Remorqueur ra : listeRemorqueurAssurance) {
+                        //check if he is disponible
+                        if(ra.isDisponible()){
+
+                            //check if he is not in the list of refused
+                            for(DemandeRemorqeurChangeParClient d :demandeRemorquage.getListeDemandesRemorquageChangesParClient()){
+                                if(d.getRemorqeurRefuse().getId() != ra.getId()) {
+                                    remorqueurAssuranceEnCharge = ra ;
+                                    break ;
+                                }
+                            }
+                        }
+                    }
+
+
+
+                    //affecter le remorqueur choisi au demande
+
+                    Instant now = Instant.now();
+                    Timestamp dateAcceptation = Timestamp.from(now);
+
+                    demandeRemorquage.setRemorqueur(remorqueurAssuranceEnCharge);
+                    //informer le remorqueur en question
+                    remorqueurAssuranceEnCharge.setCommandeAssuranceAffected(true);
+                    remorqueurService.saveOrUpdateRemorqueur(remorqueurAssuranceEnCharge);
+
+                    demandeRemorquage.setIsDeclined(false);
+
+                    //statique à changer avec une methode  de mise à jour de distance et duree pour remorqueur d'assurance
+                    demandeRemorquage.setDurreeInMinutes(3);
+
+                    demandeRemorquage.setDateAcceptation(dateAcceptation);
+
+
+
+                    demandeRemorquage.setIsAdresseDepartReachedByRemorqueur(false);
+
+
+
+                }
               demandeRemorquage.getDepartRemorquage().setLongitude(longitude);
               demandeRemorquage.getDepartRemorquage().setLattitude(latitude);
               demandeRemorquage.setIsdemandeChangedByClient(false);
@@ -488,6 +546,65 @@ public class DemandeRemorquageController {
         if(idDemande != null ) {
             try{
                 DemandeRemorquage demandeRemorquage = demandeRemorquageRepository.findById(idDemande).get();
+
+                // a faire : si assurance affecter a un remorqeur disponible et non refuse de la demande
+                if(demandeRemorquage.getTypeRemorquage().equalsIgnoreCase("assurance")) {
+                    List<Remorqueur> listeRemorqeur = remorqueurService.getRemorqueurs() ;
+                    List<Remorqueur> listeRemorqueurAssurance = new ArrayList<>();
+
+                    //get la liste des remorqueurs assurance
+                    for(Remorqueur r : listeRemorqeur) {
+                        Set<Role> listeRoles = r.getConsommateur().getRoles();
+                        for(Role ro : listeRoles) {
+                            if(ro.getRoleName().equals(ERole.ROLE_REMORQUEUR_ASSURANCE)) {
+                                listeRemorqueurAssurance.add(r);
+                            }
+                        }
+
+                    }
+
+                    Remorqueur remorqueurAssuranceEnCharge = new Remorqueur();
+                    for(Remorqueur ra : listeRemorqueurAssurance) {
+                        //check if he is disponible
+                        if(ra.isDisponible()){
+
+                            //check if he is not in the list of refused
+                            for(DemandeRemorqeurChangeParClient d :demandeRemorquage.getListeDemandesRemorquageChangesParClient()){
+                                if(d.getRemorqeurRefuse().getId() != ra.getId()) {
+                                    remorqueurAssuranceEnCharge = ra ;
+                                    break ;
+                                }
+                            }
+                        }
+                    }
+
+
+
+                    //affecter le remorqueur choisi au demande
+
+                    Instant now = Instant.now();
+                    Timestamp dateAcceptation = Timestamp.from(now);
+
+                    demandeRemorquage.setRemorqueur(remorqueurAssuranceEnCharge);
+                    //informer le remorqueur en question
+                    remorqueurAssuranceEnCharge.setCommandeAssuranceAffected(true);
+                    remorqueurService.saveOrUpdateRemorqueur(remorqueurAssuranceEnCharge);
+
+                    demandeRemorquage.setIsDeclined(false);
+
+                    //statique à changer avec une methode  de mise à jour de distance et duree pour remorqueur d'assurance
+                    demandeRemorquage.setDurreeInMinutes(3);
+
+                    demandeRemorquage.setDateAcceptation(dateAcceptation);
+
+
+
+                    demandeRemorquage.setIsAdresseDepartReachedByRemorqueur(false);
+
+
+
+                }
+
 
                 demandeRemorquage.setIsdemandeChangedByClient(false);
                 demandeRemorquage.setIsClientPickedUp(false);
