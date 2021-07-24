@@ -5,6 +5,7 @@ import com.onegateafrica.Controllers.utils.ImageIO;
 import com.onegateafrica.Entities.Consommateur;
 import com.onegateafrica.Entities.Conversation;
 import com.onegateafrica.Entities.Message;
+import com.onegateafrica.Payloads.response.ConversationResponse;
 import com.onegateafrica.Security.jwt.JwtUtils;
 import com.onegateafrica.Service.ConsommateurService;
 import com.onegateafrica.Service.ConversationService;
@@ -14,14 +15,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -32,6 +30,7 @@ public class ConversationController {
     private final RemorqueurService remorqueurService;
     private final ConversationService conversationService;
     private final MessageService messageService;
+    private static Map<Long, Map<Long, List<Message>>> messages = new HashMap<Long, Map<Long, List<Message>>>();
 
     @Autowired
     public ConversationController(ConsommateurService consommateurService, JwtUtils jwtUtils,
@@ -55,7 +54,6 @@ public class ConversationController {
         String email = String.valueOf(jwtUtils.parseJwtToken(auth.substring(7)).getBody().get("sub"));
         Optional<Consommateur> consommateur1;
         Optional<Consommateur> consommateur2;
-        Boolean isConsommateur = true;
 
         consommateur1 = consommateurService.getConsommateurByEmail(email);
         consommateur2 = consommateurService.getConsommateur(message.getReceiverId());
@@ -87,6 +85,28 @@ public class ConversationController {
         Conversation conversationUpdate = conversation.get();
         Date date = new Date();
         conversationUpdate.setLastActivity(date);
+        conversationUpdate.setLastMessage(newMessage);
+        if (messages.containsKey(conversation.get().getId())) {
+            Map<Long, List<Message>> conversationM = messages.get(conversation.get().getId());
+            if (conversationM.containsKey(consommateur2.get().getId())) {
+                List<Message> receiverMessages = conversationM.get(consommateur2.get().getId());
+                receiverMessages.add(newMessage);
+                conversationM.put(consommateur2.get().getId(), receiverMessages);
+                messages.put(conversation.get().getId(), conversationM);
+            } else {
+                List<Message> receiverMessages = new ArrayList<Message>();
+                receiverMessages.add(newMessage);
+                Map<Long, List<Message>> receiverMap = new HashMap<Long, List<Message>>();
+                receiverMap.put(consommateur2.get().getId(), receiverMessages);
+                messages.put(conversation.get().getId(), receiverMap);
+            }
+        } else {
+            List<Message> receiverMessages = new ArrayList<Message>();
+            receiverMessages.add(newMessage);
+            Map<Long, List<Message>> receiverMap = new HashMap<Long, List<Message>>();
+            receiverMap.put(consommateur2.get().getId(), receiverMessages);
+            messages.put(conversation.get().getId(), receiverMap);
+        }
         conversationService.save(conversationUpdate);
         return ResponseEntity.status(HttpStatus.OK).body(newMessage);
     }
@@ -96,11 +116,14 @@ public class ConversationController {
 
         String email = String.valueOf(jwtUtils.parseJwtToken(auth.substring(7)).getBody().get("sub"));
         Optional<Consommateur> user = consommateurService.getConsommateurByEmail(email);
-        System.out.println(user.isPresent());
         if (user.isPresent()) {
             Optional<List<Conversation>> conversations = conversationService.getAllConversation(user.get().getId());
             if (conversations.isPresent()) {
-                return ResponseEntity.status(HttpStatus.OK).body(conversations.get());
+                List<ConversationResponse> conversationResponses = new ArrayList<ConversationResponse>();
+                for(Conversation conversation: conversations.get()){
+                    conversationResponses.add(new ConversationResponse(conversation));
+                }
+                return ResponseEntity.status(HttpStatus.OK).body(conversationResponses);
             }
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("NOT FOUND");
         }
@@ -109,9 +132,9 @@ public class ConversationController {
 
     @GetMapping("/getMessagesById/{id}/{begins}/{ends}")
     public ResponseEntity<?> getMessagesById(@PathVariable(name = "id") Long id,
-                                                    @PathVariable(name = "begins") Integer begins,
-                                                    @PathVariable(name = "ends") Integer ends,
-                                                    @RequestHeader("Authorization") String auth) {
+                                             @PathVariable(name = "begins") Integer begins,
+                                             @PathVariable(name = "ends") Integer ends,
+                                             @RequestHeader("Authorization") String auth) {
         System.out.println(begins + " " + ends + " " + id);
         if (!(begins != null && ends != null && id != null && begins >= 0 && ends >= begins)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Parameters");
@@ -134,6 +157,15 @@ public class ConversationController {
                         else
                             messages1 = messages1.subList(begins, messages1.size());
                         messages1 = Lists.reverse(messages1);
+                        messageService.setRecieved(user.get().getId(), id);
+                        Optional<List<Conversation>> conversations = conversationService.getAllConversation(user.get().getId());
+                        if (conversations.isPresent() && conversations.get().size() > 0) {
+                            for (Conversation conv : conversations.get()) {
+                                if(this.messages.containsKey(conv.getId()) && this.messages.get(conv.getId()).containsKey(user.get().getId())) {
+                                    this.messages.get(conv.getId()).remove(user.get().getId());
+                                }
+                            }
+                        }
                         return ResponseEntity.status(HttpStatus.OK).body(messages1);
                     }
                     return ResponseEntity.status(HttpStatus.NOT_FOUND).body("no messages");
@@ -145,10 +177,11 @@ public class ConversationController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid ID");
     }
 
+    /*
     @GetMapping("/getNewMessagesById/{id}")
     public ResponseEntity<?> getNewMessages(@PathVariable(name = "id") Long id,
-                                                    @RequestHeader("Authorization") String auth) {
-        if(id == null){
+                                            @RequestHeader("Authorization") String auth) {
+        if (id == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("conversation id is null");
 
         }
@@ -162,10 +195,18 @@ public class ConversationController {
                         + " " + conversation.get().getConsommateur2().getId());
                 if (user.get().getId() == conversation.get().getConsommateur1().getId() ||
                         user.get().getId() == conversation.get().getConsommateur2().getId()) {
-                    Optional<List<Message>> messages = messageService.getNewMessages(user.get().getId(),id);
+                    Optional<List<Message>> messages = messageService.getNewMessages(user.get().getId(), id);
                     if (messages.isPresent()) {
-                        System.out.println(messageService.setRecieved(user.get().getId(),id));
+                        System.out.println(messageService.setRecieved(user.get().getId(), id));
                         List<Message> messages1 = messages.get();
+                        List<Message> updatedReceivedMassages;
+                        if (receivedMessages.containsKey(id)) {
+                            updatedReceivedMassages = receivedMessages.get(id);
+                        } else {
+                            updatedReceivedMassages = new ArrayList<Message>();
+                        }
+                        updatedReceivedMassages.addAll(messages1);
+                        receivedMessages.put(id, updatedReceivedMassages);
                         return ResponseEntity.status(HttpStatus.OK).body(messages1);
                     }
                     return ResponseEntity.status(HttpStatus.NOT_FOUND).body("no messages");
@@ -175,6 +216,47 @@ public class ConversationController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("no such conversation");
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid ID");
+    }
+    */
+    @GetMapping("/getUpdates/{id}")
+    public ResponseEntity<?> getUpdates(@PathVariable(name = "id") Long id,
+                                        @RequestHeader("Authorization") String auth) {
+        if (id == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("conversation id is null");
+        }
+        String email = String.valueOf(jwtUtils.parseJwtToken(auth.substring(7)).getBody().get("sub"));
+        Optional<Consommateur> user = consommateurService.getConsommateurByEmail(email);
+        if (user.isPresent()) {
+            if (this.messages.containsKey(id)) {
+                if (this.messages.get(id).containsKey(user.get().getId())) {
+                    List<Message> messages = this.messages.get(id).get(user.get().getId());
+                    for (Message message : messages) {
+                        if (message.getReceived() == false) {
+                            if (this.messages.get(id).containsKey(message.getSenderId())) {
+                                message.setReceived(true);
+                                Map<Long, List<Message>> senderMap = this.messages.get(id);
+                                List<Message> senderMessages = senderMap.get(message.getSenderId());
+                                senderMessages.add(message);
+                                senderMap.put(message.getSenderId(), senderMessages);
+                                this.messages.put(id, senderMap);
+                            } else {
+                                List<Message> senderMessages = new ArrayList<Message>();
+                                message.setReceived(true);
+                                senderMessages.add(message);
+                                Map<Long, List<Message>> senderMap = new HashMap<Long, List<Message>>();
+                                senderMap.put(message.getSenderId(), senderMessages);
+                                this.messages.put(id, senderMap);
+                            }
+                        }
+                    }
+                    this.messages.get(id).remove(user.get().getId());
+                    messageService.setRecieved(user.get().getId(), id);
+                    return ResponseEntity.status(HttpStatus.OK).body(messages);
+                }
+            }
+
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No updates");
     }
 
     @PostMapping("/setSeen/{convId}")
@@ -186,13 +268,54 @@ public class ConversationController {
         String email = String.valueOf(jwtUtils.parseJwtToken(auth.substring(7)).getBody().get("sub"));
         Optional<Consommateur> user = consommateurService.getConsommateurByEmail(email);
         if (user.isPresent()) {
+            Optional<List<Message>> messages = messageService.getUnseen(convId, user.get().getId());
+            if (messages.isPresent() && messages.get().size() > 0) {
+                List<Long> unseenMessagesIds = messages.get().stream().map(message -> message.getId()).collect(Collectors.toList());
+                if (this.messages.containsKey(convId)) {
+                    Map<Long, List<Message>> conversationM = this.messages.get(convId);
+                    if (conversationM.containsKey(messages.get().get(0).getSenderId())) {
+                        List<Message> receiverMessages = conversationM.get(messages.get().get(0).getSenderId());
+                        int i = 0;
+                        for (Message receiverMessage : receiverMessages) {
+                            if (unseenMessagesIds.contains(receiverMessage.getId())) {
+                                receiverMessage.setSeen(true);
+                                receiverMessages.set(i, receiverMessage);
+                                unseenMessagesIds.remove((receiverMessage.getId()));
+                            }
+                            i++;
+                        }
+                        for (Message message : messages.get()) {
+                            if (unseenMessagesIds.contains(message.getId())) {
+                                message.setSeen(true);
+                                receiverMessages.add(message);
+                            }
+                        }
+                        conversationM.put(messages.get().get(0).getSenderId(), receiverMessages);
+                        this.messages.put(convId, conversationM);
+                    } else {
+                        List<Message> unseenMessages = messages.get().stream().map(message -> getSeenMessages(message)).collect(Collectors.toList());
+                        conversationM.put(messages.get().get(0).getSenderId(), unseenMessages);
+                        this.messages.put(convId, conversationM);
+                    }
+                } else {
+                    List<Message> unseenMessages = messages.get().stream().map(message -> getSeenMessages(message)).collect(Collectors.toList());
+                    Map<Long, List<Message>> conversationM = new HashMap<Long, List<Message>>();
+                    conversationM.put(messages.get().get(0).getSenderId(), unseenMessages);
+                    this.messages.put(convId, conversationM);
+                }
+            }
             messageService.setSeen(convId, user.get().getId());
             return ResponseEntity.status(HttpStatus.OK).body("done!");
         }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("something went wrong");
     }
 
-    @PostMapping("/setRecieved/{convId}")
+    public Message getSeenMessages(Message message) {
+        message.setSeen(true);
+        return message;
+    }
+
+    /*@PostMapping("/setRecieved/{convId}")
     public ResponseEntity<?> SendMessage(@RequestHeader("Authorization") String auth,
                                          @PathVariable(name = "convId") Long convId) {
         if (convId == null) {
@@ -205,17 +328,17 @@ public class ConversationController {
             return ResponseEntity.status(HttpStatus.OK).body("done!");
         }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("something went wrong");
-    }
+    }*/
 
     @PostMapping("/uploadImage")
     public ResponseEntity<String> uploadImage(
             @RequestParam("image") MultipartFile image,
             @RequestParam("id") Long id
     ) {
-        if(id == null){
+        if (id == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("id null");
         }
-        if(image == null){
+        if (image == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("image null");
         }
         if (ImageIO.uploadImage(image, image.hashCode() + id + "image" + "-" + image.getOriginalFilename())) {
@@ -234,10 +357,10 @@ public class ConversationController {
         /**
          * http://localhost:8080/api/cinPicture?cinNumber=[cinNumber]
          */
-        if(id == null){
+        if (id == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("id null");
         }
-        if(imageName == null){
+        if (imageName == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("imageName null");
         }
         System.out.println(imageName);
@@ -254,8 +377,7 @@ public class ConversationController {
                         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex);
                     }
                 }
-            }
-            else {
+            } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Image not found");
             }
         }

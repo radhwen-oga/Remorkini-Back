@@ -38,6 +38,11 @@ public class MessageServiceImpl implements MessageService {
 	}
 
 	@Override
+	public Optional<List<Message>> getUnseen(Long conversationId, Long senderId) {
+		return messageRepository.getUnseen(conversationId, senderId);
+	}
+
+	@Override
 	public int setRecieved(Long recieverId) {
 		return messageRepository.setRecieved(recieverId);
 	}
