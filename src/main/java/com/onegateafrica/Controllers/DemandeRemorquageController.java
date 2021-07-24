@@ -102,7 +102,7 @@ public class DemandeRemorquageController {
 
              //2) affecter à un remorqueur d'assurance disponible
              for(Remorqueur ra : listeRemorqueursAssur){
-                 if(ra.isDisponible() && !ra.isCommandeAssuranceAffected()){
+                 if(ra.isDisponible() && !ra.isCommandeAssuranceAffected() && ra.isCompteAssurance()){
                      Instant now = Instant.now();
                      Timestamp dateAcceptation = Timestamp.from(now);
 
@@ -190,6 +190,9 @@ public class DemandeRemorquageController {
         DemandeRemorquage demandeRemorquage = demandeRemorquageRepository.findById(idDemande).get();
         demandeRemorquage.setIsCanceledByClient(true);
         demandeRemorquage.setIsFinished(true);
+
+        demandeRemorquage.getRemorqueur().setCommandeAssuranceAffected(false);
+        remorqueurService.saveOrUpdateRemorqueur(demandeRemorquage.getRemorqueur());
         demandeRemorquageRepository.save(demandeRemorquage);
         return ResponseEntity.status(HttpStatus.OK).body("modifié avec succés") ;
       }
@@ -408,7 +411,7 @@ public class DemandeRemorquageController {
                   Remorqueur remorqueurAssuranceEnCharge = null;
                   for(Remorqueur ra : listeRemorqueurAssurance) {
                       //check if he is disponible
-                      if(ra.isDisponible() && !ra.isCommandeAssuranceAffected()){
+                      if(ra.isDisponible() && !ra.isCommandeAssuranceAffected() && ra.isCompteAssurance()){
 
                           //check if he is not in the list of refused
                           for(DemandeRemorqeurChangeParClient d :demandeRemorquage.getListeDemandesRemorquageChangesParClient()){
@@ -565,7 +568,7 @@ public class DemandeRemorquageController {
                     //affecter à un remorqueur d'assurance
                     for(Remorqueur ra : listeRemorqueurAssurance) {
                         //check if he is disponible
-                        if(ra.isDisponible() && !ra.isCommandeAssuranceAffected()){
+                        if(ra.isDisponible() && !ra.isCommandeAssuranceAffected() && ra.isCompteAssurance()){
 
                             //check if he is not in the list of refused
                             for(DemandeRemorqeurChangeParClient d :demandeRemorquage.getListeDemandesRemorquageChangesParClient()){
@@ -650,7 +653,7 @@ public class DemandeRemorquageController {
                     Remorqueur remorqueurAssuranceEnCharge = null;
                     for(Remorqueur ra : listeRemorqueurAssurance) {
                         //check if he is disponible
-                        if(ra.isDisponible() && !ra.isCommandeAssuranceAffected()){
+                        if(ra.isDisponible() && !ra.isCommandeAssuranceAffected() && ra.isCompteAssurance()){
 
                             //check if he is not in the list of refused
                             for(DemandeRemorqeurChangeParClient d :demandeRemorquage.getListeDemandesRemorquageChangesParClient()){
