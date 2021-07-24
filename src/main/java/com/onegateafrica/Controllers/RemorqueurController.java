@@ -270,6 +270,8 @@ public class RemorqueurController {
 
     }
 
+
+
     @PutMapping("/modifierPositionVoiture/{idRemorqueur}")
     private ResponseEntity<Object> mettreAjourPositionVoiture(@PathVariable  Long idRemorqueur , @RequestBody PositionVoitureDto positionVoitureDto) {
         if(idRemorqueur !=null && positionVoitureDto !=null) {
