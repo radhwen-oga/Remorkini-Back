@@ -58,4 +58,11 @@ public class Consommateur extends User {
     private Boolean isBanned =false ;
 
 
+    @Column(name ="nombreDeVote")
+    private double nombreDeVote=1;
+
+    @Column(name ="noteRemorqueurMoyenne")
+    private double noteConsommateurMoyenne=1;
+
+
 }

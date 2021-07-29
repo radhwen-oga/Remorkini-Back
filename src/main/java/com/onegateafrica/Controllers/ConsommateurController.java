@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 
+import com.onegateafrica.Entities.Remorqueur;
 import com.onegateafrica.Payloads.request.PushTokenDto;
 
 import com.onegateafrica.Payloads.request.UpdateForm;
@@ -209,6 +210,38 @@ public class ConsommateurController {
 			return ImageIO.getProfilImagePlaceholder();
 		}
 	}
+
+
+	@PutMapping ("/noterConsommateur/{idConsommateur}")
+	public ResponseEntity<String> noterConsommateur(
+			@PathVariable("idConsommateur") Long idConsommateur,
+			@RequestParam("nombreEtoile") Double nombreEtoile) {
+		try {
+			if (idConsommateur == null && nombreEtoile == null) {
+				return ResponseEntity.badRequest().body("ERROR");
+			} else {
+				Optional<Consommateur> consommateur = consommateurService.getConsommateur(idConsommateur);
+				if (consommateur == null) {
+					return ResponseEntity.badRequest().body("consommateur not found");
+				} else {
+					double nombreDeVoteAncien = consommateur.get().getNombreDeVote();
+					double ancienNote = consommateur.get().getNoteConsommateurMoyenne();
+					double nouveauNombreDeVote = consommateur.get().getNombreDeVote() + 1 ;
+					double nouveauNote = (ancienNote  + nombreEtoile) / (nouveauNombreDeVote);
+
+					consommateur.get().setNoteConsommateurMoyenne(nouveauNote);
+					consommateur.get().setNombreDeVote(nouveauNombreDeVote);
+					consommateurService.saveOrUpdateConsommateur(consommateur.get());
+					return ResponseEntity.ok().body("SUCCESS");
+				}
+			}
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body("id Consommmateur invalide");
+		}
+	}
+
+
+
 	@GetMapping(value = "/public/pictureByID", produces = MediaType.IMAGE_PNG_VALUE)
 	public @ResponseBody
 	byte[] getUserPictureById(
