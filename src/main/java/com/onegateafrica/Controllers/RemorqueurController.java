@@ -24,6 +24,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -117,30 +118,31 @@ public class RemorqueurController {
 
     }
 
-    @PostMapping("/noterRemorqueur")
+    @PutMapping ("/noterRemorqueur/{idRemorqueur}")
     public ResponseEntity<String> noterRemorqueur(
-            @RequestParam("numeroCinRemorqueur") String numeroCinRemorqueur,
-            @RequestParam("nombreEtoile") Integer nombreEtoile) {
+            @PathVariable("idRemorqueur") Long idRemorqueur,
+            @RequestParam("nombreEtoile") Double nombreEtoile) {
         try {
-            if (numeroCinRemorqueur == null && nombreEtoile == null) {
+            if (idRemorqueur == null && nombreEtoile == null) {
                 return ResponseEntity.badRequest().body("ERROR");
             } else {
-                Optional<Remorqueur> remorqueur = remorqueurService.findRemorqeurByCIN(numeroCinRemorqueur);
+                Optional<Remorqueur> remorqueur = remorqueurService.getRemorqueur(idRemorqueur);
                 if (remorqueur == null) {
                     return ResponseEntity.badRequest().body("Remoqueur not found");
                 } else {
                     double nombreDeVoteAncien = remorqueur.get().getNombreDeVote();
                     double ancienNote = remorqueur.get().getNoteRemorqueurMoyenne();
-                    double nouveauNote = (ancienNote * 1.0 + nombreEtoile * 1.0) / (nombreDeVoteAncien * 1.0);
-                    System.out.println(nouveauNote);
+                    double nouveauNombreDeVote = remorqueur.get().getNombreDeVote() + 1 ;
+                    double nouveauNote = (ancienNote  + nombreEtoile) / (nouveauNombreDeVote);
+
                     remorqueur.get().setNoteRemorqueurMoyenne(nouveauNote);
-                    remorqueur.get().setNombreDeVote(nombreDeVoteAncien + 1);
+                    remorqueur.get().setNombreDeVote(nouveauNombreDeVote);
                     remorqueurService.saveOrUpdateRemorqueur(remorqueur.get());
                     return ResponseEntity.ok().body("SUCCESS");
                 }
             }
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Numero CIN invalide");
+            return ResponseEntity.badRequest().body("id Remorqueur invalide");
         }
     }
 
