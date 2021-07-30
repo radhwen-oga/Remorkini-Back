@@ -6,11 +6,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 
-import com.onegateafrica.Entities.Remorqueur;
+import com.onegateafrica.Entities.Location;
 import com.onegateafrica.Payloads.request.PushTokenDto;
 
 import com.onegateafrica.Payloads.request.UpdateForm;
 import com.onegateafrica.Payloads.response.JwtResponse;
+import com.onegateafrica.Repositories.LocationRepository;
 import com.onegateafrica.Security.jwt.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -45,12 +46,15 @@ public class ConsommateurController {
 	private final RoleRepository roleRepository;
 	private final JwtUtils jwtUtils;
 
+	private final LocationRepository locationRepository ;
+
 	@Autowired
-	public ConsommateurController(RoleRepository roleRepository, ConsommateurService consommateurService, BCryptPasswordEncoder bCryptPasswordEncoder, JwtUtils jwtUtils) {
+	public ConsommateurController(RoleRepository roleRepository, ConsommateurService consommateurService, BCryptPasswordEncoder bCryptPasswordEncoder, JwtUtils jwtUtils, LocationRepository locationRepository) {
 		this.consommateurService = consommateurService;
 		this.bCryptPasswordEncoder = bCryptPasswordEncoder;
 		this.roleRepository=roleRepository;
 		this.jwtUtils = jwtUtils;
+		this.locationRepository = locationRepository;
 	}
 	private void makeDirectoryIfNotExist(String imageDirectory) {
 		File directory = new File(imageDirectory);
@@ -295,5 +299,54 @@ public class ConsommateurController {
 		}
 
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("l'id du consommateur ne peut pas étre null");
+	}
+
+
+
+	@GetMapping("/getListeEmplacementFavoris/{idConsommateur}")
+	public ResponseEntity<Object> getListeEmplacementFavoris (@PathVariable Long idConsommateur) {
+		if(idConsommateur !=null){
+			try{
+				Consommateur consommateur = consommateurService.getConsommateur(idConsommateur).get();
+				return ResponseEntity.status(HttpStatus.OK).body(consommateur.getListeEmplacementsFavoris());
+			}
+			catch (Exception e) {
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("erreur");
+			}
+
+		}
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("id consommateur ne peut pas étre null");
+	}
+
+	@PutMapping("/ajouterEmplacementAuFavoris/{idConsommateur}/{idLocation}")
+	public ResponseEntity<Object> ajouterEmplacementAuListeFavoris(@PathVariable Long idConsommateur , @PathVariable Long idLocation ,@RequestParam String nomEmplacement){
+		if(idConsommateur !=null && idLocation!=null && nomEmplacement!=null){
+			try {
+				Consommateur consommateur = consommateurService.getConsommateur(idConsommateur).get();
+				Location emplacementAajouter = locationRepository.findById(idLocation).get() ;
+
+
+				List<Location> listeDesFavoris = consommateur.getListeEmplacementsFavoris();
+				emplacementAajouter.setNomAuListeFavoris(nomEmplacement);
+				emplacementAajouter.setConsommateur(consommateur);
+				listeDesFavoris.add(emplacementAajouter);
+
+				consommateur.setListeEmplacementsFavoris(listeDesFavoris);
+
+				consommateurService.saveOrUpdateConsommateur(consommateur);
+
+				return ResponseEntity.status(HttpStatus.OK).body("success");
+
+			}
+
+			catch (Exception e) {
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("erreur");
+			}
+
+
+
+		}
+
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("les ids ne peuvent pas étre null");
 	}
 }

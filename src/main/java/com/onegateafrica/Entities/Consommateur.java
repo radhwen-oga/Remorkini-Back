@@ -65,4 +65,8 @@ public class Consommateur extends User {
     private double noteConsommateurMoyenne=1;
 
 
+    @OneToMany(fetch =FetchType.LAZY ,mappedBy = "consommateur",cascade = CascadeType.ALL)
+    private List<Location> listeEmplacementsFavoris ;
+
+
 }

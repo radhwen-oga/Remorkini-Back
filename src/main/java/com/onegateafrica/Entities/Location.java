@@ -1,5 +1,6 @@
 package com.onegateafrica.Entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,9 +19,14 @@ public class Location {
     private Long id ;
 
 
+    private String nomAuListeFavoris ;
     private String nom ;
     private Double longitude ;
     private Double lattitude ;
+
+    @JsonIgnore
+    @ManyToOne
+    private Consommateur consommateur ;
 
 
 
