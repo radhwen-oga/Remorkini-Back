@@ -12,4 +12,7 @@ import java.util.Optional;
 public interface ReclamationRepository extends JpaRepository<Reclamation , Long> {
     @Query(value = "select * FROM reclamation as r  where r.remorqueur_id = :idRemorqueur"  , nativeQuery = true )
     Optional<List<Reclamation>> getReclamationsOfRemorqeur(@Param(value="idRemorqueur") long idRemorqueur ) ;
+
+    @Query(value = "select * FROM reclamation as c  where c.consommateur_id = :idConsommateur"  , nativeQuery = true )
+    Optional<List<Reclamation>> getReclamationsOfClient(@Param(value="idConsommateur") long idConsommateur ) ;
 }

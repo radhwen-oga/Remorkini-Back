@@ -108,9 +108,26 @@ public class ReclamationController {
 
                 consommateurService.saveOrUpdateConsommateur(consommateur);
 
+                //2) ------calculate the week of today's date
+                IntervalWeekUtils currentIntervalWeek = reclamationService.calculateWeekFromToday(today);
+                //IntervalWeekUtils intervalWeekUtils  = reclamationService.calculateWeekFromToday(today.plus(Duration.ofDays(6)));
+                System.out.println("this is from controller "+currentIntervalWeek.getLeftDateIntervall()+" " +currentIntervalWeek.getRightDateIntervall());
+
+                //3)---------- get the list of reclamations of a given consommateur in this week
+                List<Reclamation> allReclamationsList = reclamationService.getReclamationsOfClient(reclamationClientDto.getIdConsommateur()).get();
+                List<Reclamation> searchedListOfReclmations=  reclamationService.getReclamationsOfWeek(allReclamationsList,currentIntervalWeek.getLeftDateIntervall(),currentIntervalWeek.getRightDateIntervall());
+                System.out.println("this is the liste of reclamations in this week "+searchedListOfReclmations.size());
+
+                //4)----traiter la possibilité d'un bann
+                // ---------- check if the number of recla in the week >= 5 && le premier bann then bann = 3 jours
+                ///-----------check if the number of recla in the week >=10 && le second bann then bann =  10 jours
+                ///-----------check if the number of recla in the week >=10 && le troisiéme bann then bann =  10 jours
+
+                String message = reclamationService.traiterBannOfClient(reclamationClientDto.getIdConsommateur(),searchedListOfReclmations);
 
 
-                return ResponseEntity.status(HttpStatus.OK).body("reclamation ajouté avec succés");
+                return ResponseEntity.status(HttpStatus.OK).body(message);
+
 
             }
             catch (Exception e){

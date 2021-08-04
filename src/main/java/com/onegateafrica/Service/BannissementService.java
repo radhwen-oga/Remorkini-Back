@@ -20,6 +20,9 @@ public interface BannissementService {
     Optional<List<Bannissement>> getBannissementOfRemorqeur( long idRemorqueur ) ;
     BannResponse verifierBann(Long idRemorqeur );
 
+    Optional<List<Bannissement>> getBannissementOfClient( long idConsommateur ) ;
+    BannResponse verifierBannOfClient(Long idConsommateur );
+
 
 }
 
