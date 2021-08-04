@@ -10,6 +10,7 @@ import com.onegateafrica.Entities.RemorqeurType;
 import com.onegateafrica.Entities.Remorqueur;
 import com.onegateafrica.Payloads.request.SignUpRemorqueur;
 import com.onegateafrica.Payloads.response.BannResponse;
+import com.onegateafrica.Repositories.AssuranceRepository;
 import com.onegateafrica.Repositories.RoleRepository;
 import com.onegateafrica.Service.BannissementService;
 import com.onegateafrica.Service.ConsommateurService;
@@ -24,7 +25,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -46,17 +46,20 @@ public class RemorqueurController {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final RoleRepository roleRepository;
     private final BannissementService bannissementService;
+
+    private final AssuranceRepository assuranceRepository ;
     Logger logger = LoggerFactory.getLogger(RemorqueurController.class);
 
 
     @Autowired
     public RemorqueurController(RoleRepository roleRepository, RemorqueurService remorqueurService, ConsommateurService consommateurService,
-                                BCryptPasswordEncoder bCryptPasswordEncoder, BannissementService bannissementService) {
+                                BCryptPasswordEncoder bCryptPasswordEncoder, BannissementService bannissementService, AssuranceRepository assuranceRepository) {
         this.remorqueurService = remorqueurService;
         this.consommateurService = consommateurService;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.roleRepository = roleRepository;
         this.bannissementService = bannissementService;
+        this.assuranceRepository = assuranceRepository;
     }
 
     @GetMapping("/getConsommateurAsRemorqueur/{idConsommateur}")
@@ -294,6 +297,22 @@ public class RemorqueurController {
         }
 
          return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("l'id du remorqueur ou les position ne peuvent pas etre nul");
+    }
+
+
+
+
+
+
+    @GetMapping("/getListeAssurance")
+    private ResponseEntity<Object> getAssurances () {
+        try {
+            List<Assurance> listeAssurances = assuranceRepository.findAll();
+            return ResponseEntity.status(HttpStatus.OK).body(listeAssurances);
+        }
+        catch (Exception e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("erreur");
+        }
     }
 
 

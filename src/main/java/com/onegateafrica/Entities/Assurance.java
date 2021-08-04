@@ -22,8 +22,13 @@ public class Assurance {
 
 
     private String nom ;
+    private String acrnonyme;
 
     @OneToMany(mappedBy = "assurance" ,fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Consommateur> clientsAffectesListe ;
+
+    @OneToMany(mappedBy = "assurance" ,fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Remorqueur> remorqueursAffectesListe ;
 }

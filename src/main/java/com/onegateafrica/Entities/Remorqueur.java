@@ -102,5 +102,9 @@ public  class Remorqueur implements Serializable {
   private boolean isCompteAssurance ;
 
 
+  @ManyToOne
+  private Assurance assurance ;
+
+
 
 }
