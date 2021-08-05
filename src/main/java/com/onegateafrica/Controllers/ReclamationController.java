@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Timestamp;
+import java.text.ParseException;
 import java.time.Instant;
 import java.util.List;
 
@@ -89,11 +90,11 @@ public class ReclamationController {
 
 
     @PostMapping("/ajouterReclamationAuClient")
-    public ResponseEntity<Object> ajouterReclamationAuClient (@RequestBody ReclamationClientDto reclamationClientDto) {
+    public ResponseEntity<Object> ajouterReclamationAuClient (@RequestBody ReclamationClientDto reclamationClientDto) throws ParseException {
         if(reclamationClientDto !=null && reclamationClientDto.getIdConsommateur() !=null && reclamationClientDto.getDescription() !=null){
             Consommateur consommateur ;
 
-            try {
+            //try {
                 //1)-------- ajouter et affecter la reclamation au consommateur en question
                 consommateur = consommateurService.getConsommateur(reclamationClientDto.getIdConsommateur()).get();
                 Reclamation reclamation = new Reclamation() ;
@@ -115,7 +116,7 @@ public class ReclamationController {
 
                 //3)---------- get the list of reclamations of a given consommateur in this week
                 List<Reclamation> allReclamationsList = reclamationService.getReclamationsOfClient(reclamationClientDto.getIdConsommateur()).get();
-                List<Reclamation> searchedListOfReclmations=  reclamationService.getReclamationsOfWeek(allReclamationsList,currentIntervalWeek.getLeftDateIntervall(),currentIntervalWeek.getRightDateIntervall());
+                List<Reclamation> searchedListOfReclmations=  reclamationService.getReclamationsClientOfWeek(allReclamationsList,currentIntervalWeek.getLeftDateIntervall(),currentIntervalWeek.getRightDateIntervall());
                 System.out.println("this is the liste of reclamations in this week "+searchedListOfReclmations.size());
 
                 //4)----traiter la possibilité d'un bann
@@ -129,10 +130,10 @@ public class ReclamationController {
                 return ResponseEntity.status(HttpStatus.OK).body(message);
 
 
-            }
-            catch (Exception e){
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("erreur ");
-            }
+//            }
+//            catch (Exception e){
+//                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getStackTrace());
+//            }
 
 
         }

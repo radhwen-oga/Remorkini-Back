@@ -67,7 +67,8 @@ public class ReclamationServiceImpl implements ReclamationService {
 
     @Override
     public Optional<List<Reclamation>> getReclamationsOfClient(Long idConsommateur) {
-        return Optional.empty();
+
+        return reclamationRepository.getReclamationsOfClient(idConsommateur);
     }
 
     //get the reclamations of a given remorqueur in a given week period
@@ -230,7 +231,7 @@ public class ReclamationServiceImpl implements ReclamationService {
     @Override
     public String traiterBannOfClient(Long idConsommateur, List<Reclamation> listeReclamationsOfClientInWeek) {
         List<Bannissement> listeBannOfClient = bannissementService.getBannissementOfClient(idConsommateur).get();
-
+        System.out.println("le nombre des reclamations par week est "+listeReclamationsOfClientInWeek.size());
         if( listeReclamationsOfClientInWeek !=null && listeReclamationsOfClientInWeek.size()>=5 ) {
 
             Bannissement bannissement = new Bannissement();
@@ -260,7 +261,7 @@ public class ReclamationServiceImpl implements ReclamationService {
 
                 consommateurService.saveOrUpdateConsommateur(consommateur);
 
-                return "le remorqeur avec l'id "+idConsommateur+" est banni de "+nbreJoursBann +" jours";
+                return "le client avec l'id "+idConsommateur+" est banni de "+nbreJoursBann +" jours";
             }
 
             //la deuxiéme fois => donc il a  avant un seul bann
@@ -283,7 +284,7 @@ public class ReclamationServiceImpl implements ReclamationService {
 
                 consommateurService.saveOrUpdateConsommateur(consommateur);
 
-                return "le remorqeur avec l'id "+idConsommateur+" est banni de "+nbreJoursBann +" jours";
+                return "le client avec l'id "+idConsommateur+" est banni de "+nbreJoursBann +" jours";
             }
 
             //la troisiéme fois => donc il a  avant deux bann
@@ -306,11 +307,11 @@ public class ReclamationServiceImpl implements ReclamationService {
 
                 consommateurService.saveOrUpdateConsommateur(consommateur);
 
-                return "le remorqeur avec l'id "+idConsommateur+" est banni de "+nbreJoursBann +" jours";
+                return "le client avec l'id "+idConsommateur+" est banni de "+nbreJoursBann +" jours";
             }
         }
 
-        return "le remorqeur avec l'id "+idConsommateur+" est n'est pas banni  ";
+        return "le client avec l'id "+idConsommateur+" est n'est pas banni  ";
     }
 
 
