@@ -10,9 +10,11 @@ import com.onegateafrica.Entities.Location;
 import com.onegateafrica.Payloads.request.PushTokenDto;
 
 import com.onegateafrica.Payloads.request.UpdateForm;
+import com.onegateafrica.Payloads.response.BannResponse;
 import com.onegateafrica.Payloads.response.JwtResponse;
 import com.onegateafrica.Repositories.LocationRepository;
 import com.onegateafrica.Security.jwt.JwtUtils;
+import com.onegateafrica.Service.BannissementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -41,6 +43,7 @@ import com.onegateafrica.Service.ConsommateurService;
 public class ConsommateurController {
 	private final ConsommateurService consommateurService;
 	private final BCryptPasswordEncoder bCryptPasswordEncoder;
+	private final BannissementService bannissementService ;
 
 	private static String imageDirectory = System.getProperty("user.dir") + "/images/";
 	private final RoleRepository roleRepository;
@@ -49,10 +52,11 @@ public class ConsommateurController {
 	private final LocationRepository locationRepository ;
 
 	@Autowired
-	public ConsommateurController(RoleRepository roleRepository, ConsommateurService consommateurService, BCryptPasswordEncoder bCryptPasswordEncoder, JwtUtils jwtUtils, LocationRepository locationRepository) {
+	public ConsommateurController(RoleRepository roleRepository, ConsommateurService consommateurService, BCryptPasswordEncoder bCryptPasswordEncoder, BannissementService bannissementService, JwtUtils jwtUtils, LocationRepository locationRepository) {
 		this.consommateurService = consommateurService;
 		this.bCryptPasswordEncoder = bCryptPasswordEncoder;
 		this.roleRepository=roleRepository;
+		this.bannissementService = bannissementService;
 		this.jwtUtils = jwtUtils;
 		this.locationRepository = locationRepository;
 	}
@@ -65,6 +69,21 @@ public class ConsommateurController {
 
 
 
+	@GetMapping("/verifierBannClient/{idConsommateur}")
+	public ResponseEntity<Object> verfierBannOfRemorqueur(@PathVariable Long idConsommateur) {
+		if (idConsommateur != null) {
+			try {
+
+				BannResponse bannResponse = bannissementService.verifierBannOfClient(idConsommateur);
+
+				return ResponseEntity.status(HttpStatus.OK).body(bannResponse);
+			} catch (Exception e) {
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("erreur ");
+			}
+		}
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("erreur ");
+
+	}
 
 	@PutMapping("/updateConsommateur")
 	public ResponseEntity<?> registerClient(@RequestBody UpdateForm body) {

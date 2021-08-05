@@ -20,7 +20,10 @@ public interface ReclamationService {
     void deleteReclamation(Long id);
 
     Optional<List<Reclamation>> getReclamationsOfRemorqeur( Long idRemorqueur) ;
+    Optional<List<Reclamation>> getReclamationsOfClient (Long idConsommateur);
     List<Reclamation> getReclamationsOfWeek(List<Reclamation> listeReclamationOfRemorqueur , String leftWeekIntervall , String rightWeekIntervall) throws ParseException;
+    List<Reclamation> getReclamationsClientOfWeek(List<Reclamation> listeReclamationOfClient , String leftWeekIntervall , String rightWeekIntervall) throws ParseException;
     IntervalWeekUtils calculateWeekFromToday(Instant today );
+    String traiterBannOfClient(Long idConsommateur , List<Reclamation> listeReclamationsOfClientInWeek);
     String traiterBann(Long idRemorqueur ,List<Reclamation> listeReclamationOfRemorqueurInWeek);
 }
