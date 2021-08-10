@@ -89,6 +89,9 @@ public class DemandeRemorquage implements Serializable {
 
   private Integer urgenceDemande =0;
 
+  @OneToOne(cascade = CascadeType.ALL)
+  private ChatConversation chatConversation ;
+
 
 
 
