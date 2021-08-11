@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @CrossOrigin(origins = "*")
@@ -38,18 +39,65 @@ public class ChatController {
     }
 
 
+    @GetMapping("/verifierMessagesNonVu/{idDemande}/{idUser}")
+    public ResponseEntity<Object> verifierMessagesNonVu (@PathVariable Long idDemande ,@PathVariable Long idUser) {
 
-    @GetMapping("/getconversation/{idDemandeRemorquage}")
-    public ResponseEntity<Object> creerConversation (@PathVariable Long idDemandeRemorquage) {
+        if(idDemande != null && idUser !=null){
+            DemandeRemorquage demandeRemorquage = demandeRemorquageRepository.findById(idDemande).get();
 
-        if(idDemandeRemorquage !=null) {
+            long nbreMessagesNonVu =0 ;
+            for(ChatMessage msg : demandeRemorquage.getChatConversation().getListeMessages()){
+                if(msg.getUser().getId() != idUser){
+                    if(!msg.isSeen()) nbreMessagesNonVu++;
+                }
+            }
+            return ResponseEntity.status(HttpStatus.OK).body(nbreMessagesNonVu);
+
+        }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("idDemande ne peut pas étre null");
+    }
+
+    @GetMapping("/getconversation/{idDemandeRemorquage}/{idUser}")
+    public ResponseEntity<Object> getConversation (@PathVariable Long idDemandeRemorquage ,@PathVariable Long idUser) {
+
+        if(idDemandeRemorquage !=null && idUser !=null) {
             //try{
             DemandeRemorquage demandeRemorquage = demandeRemorquageRepository.findById(idDemandeRemorquage).get();
-            return ResponseEntity.status(HttpStatus.OK).body(demandeRemorquage.getChatConversation());
+
+
+
+
+
+
+                List<ChatMessage> listeMessage = demandeRemorquage.getChatConversation().getListeMessages();
+            Collections.sort(listeMessage, new ChatMessage.DateCreationComparator());
+            return ResponseEntity.status(HttpStatus.OK).body(listeMessage);
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("idDemande ne peut pas étre null");
     }
 
+
+
+
+
+
+
+    @PutMapping("/mettreAjourMessagesNonVu/{idDemande}/{idUser}")
+    public ResponseEntity<Object> mettreAjourMessagesNonVu (@PathVariable Long idDemande ,@PathVariable Long idUser){
+        if(idDemande !=null  && idUser !=null ){
+            DemandeRemorquage demandeRemorquage = demandeRemorquageRepository.findById(idDemande).get();
+            //1) mettre tous les messages de l'autre partie comme vu
+            if(demandeRemorquage.getChatConversation().getListeMessages().size()>0){
+                for(ChatMessage msg : demandeRemorquage.getChatConversation().getListeMessages()){
+                    if(msg.getUser().getId() != idUser) msg.setSeen(true);
+                }
+            }
+            chatConversationRepository.save(demandeRemorquage.getChatConversation());
+            return ResponseEntity.status(HttpStatus.OK).body("ok");
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("erreur");
+    }
 
     @PostMapping("/ajouterMessage")
     public ResponseEntity<Object> ajouterMessageAuConversation (@RequestBody MessageDto messageDto){

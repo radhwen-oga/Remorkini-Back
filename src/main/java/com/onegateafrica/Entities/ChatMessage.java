@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.util.Comparator;
 
 @Data
 @NoArgsConstructor
@@ -22,13 +23,7 @@ public class ChatMessage {
 
     private String contenu ;
 
-
-
-
-
-
-
-
+    private boolean isSeen ;
 
     @OneToOne(cascade = CascadeType.ALL)
     private Consommateur user ;
@@ -37,4 +32,13 @@ public class ChatMessage {
     @ManyToOne
     private ChatConversation conversation ;
 
+    public static class DateCreationComparator implements Comparator<ChatMessage>
+    {
+        //    @Override
+        public int compare(ChatMessage m1, ChatMessage m2) {
+            return m1.getDateCreation().compareTo(m2.getDateCreation());
+        }
+
+
+    }
 }

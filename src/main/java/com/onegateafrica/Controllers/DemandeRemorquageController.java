@@ -69,7 +69,7 @@ public class DemandeRemorquageController {
   public ResponseEntity< Object > addDemandeRemorquage(@RequestBody DemandeRemorquageDto demandeRemorquageDto){
 
    if(demandeRemorquageDto != null) {
-     //try {
+     try {
          Optional<Consommateur> consommateur = consommateurService.getConsommateur(demandeRemorquageDto.getIdConsommateur());
 
          DemandeRemorquage demandeRemorquage = new DemandeRemorquage();
@@ -164,10 +164,10 @@ public class DemandeRemorquageController {
          demandeRemorquageRepository.save(demandeRemorquage);
          //consommateurService.saveOrUpdateConsommateur(entity);
          return ResponseEntity.status(HttpStatus.OK).body(demandeRemorquage);
-     //}
-     //catch (Exception e) {
-    //   return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("erreur");
-     //}
+     }
+     catch (Exception e) {
+       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("erreur");
+     }
    }
 
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("erreur ");
